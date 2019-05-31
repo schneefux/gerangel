@@ -14,7 +14,10 @@ DEBUG = True
 # SECURITY WARNING: Change for production
 CORS_ORIGIN_ALLOW_ALL = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'api.gerangel.solutions',
+    'gerangel.solutions',
+]
 
 
 # Application definition
