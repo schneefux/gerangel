@@ -15,6 +15,7 @@ DEBUG = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 ALLOWED_HOSTS = [
+    'localhost',
     'api.gerangel.solutions',
     'gerangel.solutions',
 ]
