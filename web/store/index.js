@@ -34,8 +34,8 @@ export const actions = {
     const data = await this.$axios.$get('/matches')
     const matches = data.results.map((match) => ({
       ...match,
-      home_player: state.players.find(({ url }) => url == match.home_player),
-      away_player: state.players.find(({ url }) => url == match.away_player),
+      home_players: match.home_players.map((fUrl) => state.players.find(({ url }) => url == fUrl)),
+      away_players: match.away_players.map((fUrl) => state.players.find(({ url }) => url == fUrl)),
     }))
     commit('setMatches', matches)
   },

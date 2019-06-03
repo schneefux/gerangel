@@ -2,7 +2,12 @@
   <v-card>
     <div class="match">
       <div class="match__team">
-        {{ match.home_player.user.username }}
+        <div
+          v-for="player in match.home_players"
+          :key="player.url"
+        >
+          {{ player.user.username }}
+        </div>
         <v-icon
           v-if="match.home_score > match.away_score"
           class="match__crown match__crown--left"
@@ -14,7 +19,12 @@
         {{ match.away_score }}
       </div>
       <div class="match__team">
-        {{ match.home_player.user.username }}
+        <div
+          v-for="player in match.away_players"
+          :key="player.url"
+        >
+          {{ player.user.username }}
+        </div>
         <v-icon
           v-if="match.home_score < match.away_score"
           class="match__crown match__crown--right"
