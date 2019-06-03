@@ -25,6 +25,17 @@ export const mutations = {
   },
 }
 
+/**
+ * Replace references by objects
+ */
+function joinMatch(state) {
+  return (match) => ({
+    ...match,
+    home_players: match.home_players.map((fUrl) => state.players.find(({ url }) => url == fUrl)),
+    away_players: match.away_players.map((fUrl) => state.players.find(({ url }) => url == fUrl)),
+  })
+}
+
 export const actions = {
   async nuxtServerInit({ dispatch }) {
     await dispatch('loadPlayers')
@@ -32,11 +43,7 @@ export const actions = {
   },
   async loadMatches({ state, commit }) {
     const data = await this.$axios.$get('/matches')
-    const matches = data.results.map((match) => ({
-      ...match,
-      home_players: match.home_players.map((fUrl) => state.players.find(({ url }) => url == fUrl)),
-      away_players: match.away_players.map((fUrl) => state.players.find(({ url }) => url == fUrl)),
-    }))
+    const matches = data.results.map(joinMatch(state))
     commit('setMatches', matches)
   },
   async loadPlayers({ commit }) {
@@ -45,12 +52,7 @@ export const actions = {
   },
   async addMatch({ state, commit }, match) {
     match = await this.$axios.$post('/matches/', match)
-    match = {
-      ...match,
-      home_player: state.players.find(({ url }) => url == match.home_player),
-      away_player: state.players.find(({ url }) => url == match.away_player),
-    }
-
+    match = joinMatch(state)(match)
     commit('addMatch', match)
   },
   async registerUser({ commit }, user) {

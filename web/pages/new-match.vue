@@ -10,14 +10,19 @@
           <h6 class="subheading">Heim</h6>
           <v-layout row justify-space-between>
             <v-flex xs8>
-              <v-select
-                v-model="homePlayer"
+              <v-autocomplete
+                v-model="homePlayers"
                 :items="players"
-                :rules="[required, differentFromAwayPlayer]"
+                :rules="[requiredArray, differentFromAwayPlayers]"
                 item-text="user.username"
                 item-value="url"
                 label="Spieler"
-              ></v-select>
+                box
+                chips
+                deletable-chips
+                clearable
+                multiple
+              ></v-autocomplete>
             </v-flex>
             <v-flex xs3>
               <v-text-field
@@ -35,14 +40,19 @@
           <h6 class="subheading">Gast</h6>
           <v-layout row justify-space-between>
             <v-flex xs8>
-              <v-select
-                v-model="awayPlayer"
+              <v-autocomplete
+                v-model="awayPlayers"
                 :items="players"
-                :rules="[required, differentFromHomePlayer]"
+                :rules="[requiredArray, differentFromHomePlayers]"
                 item-text="user.username"
                 item-value="url"
                 label="Spieler"
-              ></v-select>
+                box
+                chips
+                deletable-chips
+                clearable
+                multiple
+              ></v-autocomplete>
             </v-flex>
             <v-flex xs3>
               <v-text-field
@@ -79,8 +89,8 @@ import { mapState, mapActions } from 'vuex'
 export default {
   data() {
     return {
-      homePlayer: undefined,
-      awayPlayer: undefined,
+      homePlayers: [],
+      awayPlayers: [],
       homeScore: undefined,
       awayScore: undefined,
       valid: true,
@@ -94,8 +104,8 @@ export default {
 
       const match = {
         in_progress: false,
-        home_player: this.homePlayer,
-        away_player: this.awayPlayer,
+        home_players: this.homePlayers,
+        away_players: this.awayPlayers,
         home_score: this.homeScore,
         away_score: this.awayScore,
       }
@@ -108,11 +118,14 @@ export default {
     })
   },
   computed: {
-    differentFromAwayPlayer() {
-      return (player) => this.awayPlayer != player || 'Darf nicht gleich sein'
+    differentFromAwayPlayers() {
+      return (players) => !players.some((player) => this.awayPlayers.includes(player)) || 'Darf nicht in mehreren Teams auftauchen'
     },
-    differentFromHomePlayer() {
-      return (player) => this.homePlayer != player || 'Darf nicht gleich sein'
+    differentFromHomePlayers() {
+      return (players) => !players.some((player) => this.homePlayers.includes(player)) || 'Darf nicht in mehreren Teams auftauchen'
+    },
+    requiredArray() {
+      return (players) => players.length > 0 || 'Darf nicht leer sein'
     },
     required() {
       return (input) => (input !== undefined && input !== '') || 'Pflichtfeld'
