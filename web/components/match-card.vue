@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <div class="match">
-      <div class="match__team">
+      <div class="match__team match__team--left">
         <div
           v-for="player in match.home_players"
           :key="player.url"
@@ -13,12 +13,17 @@
           class="match__crown match__crown--left"
         >mdi-crown</v-icon>
       </div>
-      <div class="match__score">
-        {{ match.home_score }}
-        :
-        {{ match.away_score }}
+      <div class="match__meta">
+        <div class="match__score">
+          {{ match.home_score }}
+          :
+          {{ match.away_score }}
+        </div>
+        <div class="match__date">
+          {{ new Date(match.created).toLocaleDateString() }}
+        </div>
       </div>
-      <div class="match__team">
+      <div class="match__team match__team--right">
         <div
           v-for="player in match.away_players"
           :key="player.url"
@@ -55,8 +60,25 @@ export default {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
 
+  // team 30% + meta 20% + team 30% = 100%
   &__team {
+    width: 30%;
     font-size: x-large;
+
+    &--left {
+      text-align: left;
+    }
+
+    &--right {
+      text-align: right;
+    }
+  }
+
+  &__meta {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   &__score {
