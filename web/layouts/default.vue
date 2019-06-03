@@ -23,9 +23,9 @@
           <v-list-tile-action>
             <v-icon>mdi-login</v-icon>
           </v-list-tile-action>
-          <v-list-tile-conten>
+          <v-list-tile-content>
             Einloggen
-          </v-list-tile-conten>
+          </v-list-tile-content>
         </v-list-tile>
 
         <v-list-tile
@@ -36,9 +36,9 @@
           <v-list-tile-action>
             <v-icon>mdi-logout</v-icon>
           </v-list-tile-action>
-          <v-list-tile-conten>
+          <v-list-tile-content>
             Ausloggen ({{ player.user.username }})
-          </v-list-tile-conten>
+          </v-list-tile-content>
         </v-list-tile>
 
         <v-list-tile
@@ -48,9 +48,9 @@
           <v-list-tile-action>
             <v-icon>mdi-format-list-bulleted</v-icon>
           </v-list-tile-action>
-          <v-list-tile-conten>
+          <v-list-tile-content>
             Spielverlauf
-          </v-list-tile-conten>
+          </v-list-tile-content>
         </v-list-tile>
         <v-list-tile
           to="/new-match"
@@ -59,9 +59,9 @@
           <v-list-tile-action>
             <v-icon>mdi-plus</v-icon>
           </v-list-tile-action>
-          <v-list-tile-conten>
+          <v-list-tile-content>
             Spiel eintragen
-          </v-list-tile-conten>
+          </v-list-tile-content>
         </v-list-tile>
         <v-list-tile
           to="/leaderboard"
@@ -70,9 +70,9 @@
           <v-list-tile-action>
             <v-icon>mdi-trending-up</v-icon>
           </v-list-tile-action>
-          <v-list-tile-conten>
+          <v-list-tile-content>
             Rangliste
-          </v-list-tile-conten>
+          </v-list-tile-content>
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
