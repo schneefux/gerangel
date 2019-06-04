@@ -14,9 +14,13 @@
         >mdi-crown</v-icon>
       </div>
       <div class="match__meta">
-        <div class="match__score">
+        <div class="match__score match__score--left">
           {{ match.home_score }}
+        </div>
+        <div class="match__score match__score--center">
           :
+        </div>
+        <div class="match__score match__score--right">
           {{ match.away_score }}
         </div>
         <div class="match__date">
@@ -77,12 +81,30 @@ export default {
   &__meta {
     width: 40%;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   &__score {
     font-size: xx-large;
+
+    &--left {
+      width: 40%;
+      text-align: right;
+    }
+    &--center {
+      width: 10%;
+      text-align: center;
+    }
+    &--right {
+      width: 40%;
+      text-align: left;
+    }
+  }
+
+  &__date {
+    width: 100%;
+    text-align: center;
   }
 
   &__crown {
