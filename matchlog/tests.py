@@ -6,17 +6,13 @@ from matchlog.models import Match, Player, User
 
 class MatchTests(APITestCase):
   def setUp(self):
-    user1 = User.objects.create(username='test1')
-    Player.objects.create(user=user1)
-    user2 = User.objects.create(username='test2')
-    Player.objects.create(user=user2)
-    user3 = User.objects.create(username='test3')
-    Player.objects.create(user=user3)
-    user4 = User.objects.create(username='test4')
-    Player.objects.create(user=user4)
+    User.objects.create(username='test1')
+    User.objects.create(username='test2')
+    User.objects.create(username='test3')
+    User.objects.create(username='test4')
 
   def test_create_match(self):
-    url = reverse("match-list")
+    url = reverse("matches-results-list")
     data = {
       "home_score": 3,
       "away_score": 2,

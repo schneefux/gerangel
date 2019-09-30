@@ -5,7 +5,8 @@ from matchlog import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'players', views.PlayerViewSet)
-router.register(r'matches', views.MatchViewSet)
+router.register(r'matches', views.MatchViewSet, 'matches')
+router.register(r'matches-results', views.MatchResultViewSet, 'matches-results')
 
 urlpatterns = [
     path('', include(router.urls)),
