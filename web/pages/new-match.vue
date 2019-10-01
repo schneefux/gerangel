@@ -15,7 +15,7 @@
                 :items="players"
                 :rules="[requiredArray, differentFromAwayPlayers]"
                 item-text="user.username"
-                item-value="url"
+                item-value="id"
                 label="Spieler"
                 box
                 chips
@@ -45,7 +45,7 @@
                 :items="players"
                 :rules="[requiredArray, differentFromHomePlayers]"
                 item-text="user.username"
-                item-value="url"
+                item-value="id"
                 label="Spieler"
                 box
                 chips
@@ -102,19 +102,17 @@ export default {
         return
       }
 
-      const match = {
-        in_progress: false,
-        home_players: this.homePlayers,
-        away_players: this.awayPlayers,
-        home_score: this.homeScore,
-        away_score: this.awayScore,
-      }
+      await this.addMatchResult({
+        homePlayers: this.homePlayers,
+        awayPlayers: this.awayPlayers,
+        homeScore: this.homeScore,
+        awayScore: this.awayScore,
+      })
 
-      await this.addMatch(match)
       this.$router.push('/')
     },
     ...mapActions({
-      addMatch: 'addMatch',
+      addMatchResult: 'addMatchResult',
     })
   },
   computed: {

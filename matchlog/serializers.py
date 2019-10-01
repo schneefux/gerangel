@@ -3,13 +3,14 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from trueskill import TrueSkill
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+
+class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
     fields = ('url', 'id', 'username')
 
 
-class PlayerSerializer(serializers.HyperlinkedModelSerializer):
+class PlayerSerializer(serializers.ModelSerializer):
   user = UserSerializer(read_only=True)
 
   class Meta:
@@ -17,7 +18,7 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
     fields = '__all__'
 
 
-class MatchSerializer(serializers.HyperlinkedModelSerializer):
+class MatchSerializer(serializers.ModelSerializer):
   class Meta:
     model = Match
     fields = '__all__'
@@ -55,8 +56,16 @@ class MatchResultSerializer(serializers.BaseSerializer):
     }
 
   def to_representation(self, instance):
-    # TODO
+    home_team, away_team = MatchTeam.objects.filter(match=instance)
+    home_players = MatchPlayer.objects.filter(team=home_team)
+    away_players = MatchPlayer.objects.filter(team=away_team)
     return {
+      "id": instance.id,
+      "created": instance.created,
+      "home_players": [mp.player_id for mp in home_players],
+      "away_players": [mp.player_id for mp in away_players],
+      "home_score": home_team.score,
+      "away_score": away_team.score,
     }
 
   def create(self, data):
@@ -133,7 +142,7 @@ class MatchResultSerializer(serializers.BaseSerializer):
     return True
 
 
-class MatchTeamSerializer(serializers.HyperlinkedModelSerializer):
+class MatchTeamSerializer(serializers.ModelSerializer):
   match = MatchSerializer(read_only=True)
 
   class Meta:
@@ -141,7 +150,7 @@ class MatchTeamSerializer(serializers.HyperlinkedModelSerializer):
     fields = '__all__'
 
 
-class MatchPlayerSerializer(serializers.HyperlinkedModelSerializer):
+class MatchPlayerSerializer(serializers.ModelSerializer):
   player = PlayerSerializer(read_only=True)
   team = MatchTeamSerializer(read_only=True)
 

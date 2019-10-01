@@ -1,6 +1,6 @@
 export const state = () => ({
   player: undefined, // logged in player
-  matches: [],
+  matchResults: [],
   players: [],
 })
 
@@ -8,11 +8,11 @@ export const getters = {
 }
 
 export const mutations = {
-  setMatches(state, matches) {
-    state.matches = matches
+  setMatchResults(state, matchResult) {
+    state.matchResults = matchResult
   },
-  addMatch(state, match) {
-    state.matches = [match].concat(...state.matches)
+  addMatchResult(state, matchResult) {
+    state.matchResults = [matchResult].concat(...state.matchResults)
   },
   setPlayers(state, players) {
     state.players = players
@@ -28,37 +28,41 @@ export const mutations = {
 /**
  * Replace references by objects
  */
-function joinMatch(state) {
-  return (match) => ({
-    ...match,
-    home_players: match.home_players.map((fUrl) => state.players.find(({ url }) => url == fUrl)),
-    away_players: match.away_players.map((fUrl) => state.players.find(({ url }) => url == fUrl)),
+function joinMatchResults(state) {
+  return (matchResults) => ({
+    ...matchResults,
+    home_players: matchResults.home_players.map(fId => state.players.find(({ id }) => id == fId)),
+    away_players: matchResults.away_players.map(fId => state.players.find(({ id }) => id == fId)),
   })
 }
 
 export const actions = {
   async nuxtServerInit({ dispatch }) {
     await dispatch('loadPlayers')
-    await dispatch('loadMatches')
+    await dispatch('loadMatchResults')
   },
-  async loadMatches({ state, commit }) {
-    const data = await this.$axios.$get('/matches')
-    const matches = data.results.map(joinMatch(state))
-    commit('setMatches', matches)
+  async loadMatchResults({ state, commit }) {
+    const data = await this.$axios.$get('/match-results/')
+    const matchResults = data.results.map(joinMatchResults(state))
+    commit('setMatchResults', matchResults)
   },
   async loadPlayers({ commit }) {
-    const data = await this.$axios.$get('/players')
+    const data = await this.$axios.$get('/players/')
     commit('setPlayers', data.results)
   },
-  async addMatch({ state, commit }, match) {
-    match = await this.$axios.$post('/matches/', match)
-    match = joinMatch(state)(match)
-    commit('addMatch', match)
+  async addMatchResult({ state, commit }, matchResult) {
+    const createdMatchResult = await this.$axios.$post('/match-results/', {
+      home_players: matchResult.homePlayers,
+      away_players: matchResult.awayPlayers,
+      home_score: matchResult.homeScore,
+      away_score: matchResult.awayScore,
+    })
+    commit('addMatchResult', joinMatchResults(state)(createdMatchResult))
   },
   async registerUser({ commit }, user) {
-    const data = await this.$axios.$post('/players/', user)
-    commit('addPlayer', data)
-    commit('setPlayer', data)
+    const createdUser = await this.$axios.$post('/users/', user)
+    const player = await this.$axios.$get(`/players/?user.id=${createdUser.id}`)
+    commit('addPlayer', player.results[0])
   },
   async loginUser({ state, commit }, user) {
     const data = state.players.find((player) => player.user.username == user.username)

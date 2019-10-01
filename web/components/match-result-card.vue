@@ -1,42 +1,42 @@
 <template>
   <v-card>
-    <div class="match">
-      <div class="match__team match__team--left">
+    <div class="matchresult">
+      <div class="matchresult__team matchresult__team--left">
         <div
-          v-for="player in match.home_players"
-          :key="player.url"
+          v-for="player in matchResult.home_players"
+          :key="player.id"
         >
           {{ player.user.username }}
         </div>
         <v-icon
-          v-if="match.home_score > match.away_score"
-          class="match__crown match__crown--left"
+          v-if="matchResult.home_score > matchResult.away_score"
+          class="matchresult__crown matchresult__crown--left"
         >mdi-crown</v-icon>
       </div>
-      <div class="match__meta">
-        <div class="match__score match__score--left">
-          {{ match.home_score }}
+      <div class="matchresult__meta">
+        <div class="matchresult__score matchresult__score--left">
+          {{ matchResult.home_score }}
         </div>
-        <div class="match__score match__score--center">
+        <div class="matchresult__score matchresult__score--center">
           :
         </div>
-        <div class="match__score match__score--right">
-          {{ match.away_score }}
+        <div class="matchresult__score matchresult__score--right">
+          {{ matchResult.away_score }}
         </div>
-        <div class="match__date">
-          {{ new Date(match.created).toLocaleDateString() }}
+        <div class="matchresult__date">
+          {{ new Date(matchResult.created).toLocaleDateString() }}
         </div>
       </div>
-      <div class="match__team match__team--right">
+      <div class="matchresult__team matchresult__team--right">
         <div
-          v-for="player in match.away_players"
-          :key="player.url"
+          v-for="player in matchResult.away_players"
+          :key="player.id"
         >
           {{ player.user.username }}
         </div>
         <v-icon
-          v-if="match.home_score < match.away_score"
-          class="match__crown match__crown--right"
+          v-if="matchResult.home_score < matchResult.away_score"
+          class="matchresult__crown matchresult__crown--right"
         >mdi-crown</v-icon>
       </div>
     </div>
@@ -46,7 +46,7 @@
 <script>
 export default {
   props: {
-    match: {
+    matchResult: {
       type: Object,
       required: true,
     },
@@ -55,7 +55,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.match {
+.matchresult {
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -14,13 +14,13 @@
       </v-btn>
 
       <v-flex
-        v-for="match in matches"
-        :key="match.url"
+        v-for="matchResult in matchResults"
+        :key="matchResult.id"
         xs12
       >
         <v-layout justify-center>
           <v-flex xs12 sm6 md4 lg3>
-            <match-card :match="match" />
+            <match-result-card :match-result="matchResult" />
           </v-flex>
         </v-layout>
       </v-flex>
@@ -30,15 +30,15 @@
 
 <script>
 import { mapState } from 'vuex'
-import MatchCard from '~/components/match-card'
+import MatchResultCard from '~/components/match-result-card'
 
 export default {
   components: {
-    MatchCard
+    MatchResultCard
   },
   computed: {
     ...mapState({
-      matches: (state) => state.matches,
+      matchResults: (state) => state.matchResults,
     })
   },
 }

@@ -4,7 +4,7 @@
       <h1>Rangliste</h1>
       <v-flex
         v-for="player in sortedPlayers"
-        :key="player.url"
+        :key="player.id"
         xs12
       >
         <v-card>
