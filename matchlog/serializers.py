@@ -77,7 +77,7 @@ class MatchResultSerializer(serializers.BaseSerializer):
 
     home_team = MatchTeam(index=0, score=home_score, match=match)
     home_team.save()
-    away_team = MatchTeam(index=0, score=away_score, match=match)
+    away_team = MatchTeam(index=1, score=away_score, match=match)
     away_team.save()
 
     # load players from database
@@ -87,6 +87,7 @@ class MatchResultSerializer(serializers.BaseSerializer):
     home_players = [Player.objects.get(id=p) for p in home_players]
     away_players = [Player.objects.get(id=p) for p in away_players]
 
+    # copy pre-match ratings to MatchPlayer
     home_players = [MatchPlayer(
       player=p, rating_mu=p.rating_mu, rating_sigma=p.rating_sigma, team=home_team)
       for p in home_players]
@@ -118,28 +119,28 @@ class MatchResultSerializer(serializers.BaseSerializer):
     if draw:
       ranks = [0, 0]
     else:
-      ranks = [1 if home_won else 0, 0 if home_won else 1]
+      ranks = [0 if home_won else 1, 1 if home_won else 0]
 
     # rate
     rating_groups = env.rate(rating_groups, ranks)
 
-    # store new ratings
+    # store new ratings on Player
     home_ratings = rating_groups[0]
     away_ratings = rating_groups[1]
 
     for index, rating in enumerate(home_ratings):
       p = home_players[index]
-      p.rating_mu = rating.mu
-      p.rating_sigma = rating.sigma
-      p.save()
+      p.player.rating_mu = rating.mu
+      p.player.rating_sigma = rating.sigma
+      p.player.save()
 
     for index, rating in enumerate(away_ratings):
       p = away_players[index]
-      p.rating_mu = rating.mu
-      p.rating_sigma = rating.sigma
-      p.save()
+      p.player.rating_mu = rating.mu
+      p.player.rating_sigma = rating.sigma
+      p.player.save()
 
-    return True
+    return match
 
 
 class MatchTeamSerializer(serializers.ModelSerializer):
