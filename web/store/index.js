@@ -1,5 +1,6 @@
 export const state = () => ({
   player: undefined, // logged in player
+  token: '',
   matchResults: [],
   players: [],
 })
@@ -22,6 +23,9 @@ export const mutations = {
   },
   setPlayer(state, player) {
     state.player = player
+  },
+  setToken(state, token) {
+    state.token = token
   },
 }
 
@@ -65,7 +69,10 @@ export const actions = {
     commit('addPlayer', player.results[0])
   },
   async loginUser({ state, commit }, user) {
-    const data = state.players.find((player) => player.user.username == user.username)
-    commit('setPlayer', data)
+    const { token } = await this.$axios.$post('/login', user)
+    const player = state.players.find((player) => player.user.username == user.username)
+    commit('setPlayer', player)
+    commit('setToken', token)
+    this.$axios.setToken('Token ' + token)
   },
 }

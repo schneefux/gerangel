@@ -24,6 +24,7 @@ def create_user_player(sender, instance, created, **kwargs):
 
 class Match(models.Model):
   created = models.DateTimeField(auto_now_add=True)
+  owner = models.ForeignKey("auth.User", related_name="matches", on_delete=models.CASCADE)
 
 
 class MatchTeam(models.Model):

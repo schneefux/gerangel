@@ -19,6 +19,8 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 
 class MatchSerializer(serializers.ModelSerializer):
+  owner = serializers.ReadOnlyField(source="owner.id")
+
   class Meta:
     model = Match
     fields = '__all__'
@@ -62,6 +64,7 @@ class MatchResultSerializer(serializers.BaseSerializer):
     return {
       "id": instance.id,
       "created": instance.created,
+      "owner": instance.owner.id,
       "home_players": [mp.player_id for mp in home_players],
       "away_players": [mp.player_id for mp in away_players],
       "home_score": home_team.score,
@@ -69,7 +72,7 @@ class MatchResultSerializer(serializers.BaseSerializer):
     }
 
   def create(self, data):
-    match = Match()
+    match = Match(owner=data["owner"])
     match.save()
 
     home_score = data["home_score"]
