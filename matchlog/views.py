@@ -1,8 +1,9 @@
 from django.contrib.auth.models import User
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 
 from matchlog.models import Match, Player
 from matchlog.serializers import UserSerializer, PlayerSerializer, MatchSerializer, MatchResultSerializer
+from matchlog.permissions import IsHistoricallySafe
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -22,6 +23,7 @@ class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class MatchViewSet(viewsets.ReadOnlyModelViewSet):
+  permission_classes = [IsHistoricallySafe]
   queryset = Match.objects.all().order_by("-created")
   serializer_class = MatchSerializer
 
@@ -30,7 +32,7 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class MatchResultViewSet(viewsets.ModelViewSet):
-  permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+  permission_classes = [IsHistoricallySafe]
   queryset = Match.objects.all().order_by("-created")
   serializer_class = MatchResultSerializer
 
