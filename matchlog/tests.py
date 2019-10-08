@@ -74,3 +74,23 @@ class MatchTests(APITestCase):
     response = self.client.delete(url)
 
     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+  def test_should_filter_players(self):
+    url = reverse("player-list")
+
+    response = self.client.get(url + "?user.id=1")
+
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(len(response.data["results"]), 1)
+
+  def test_should_matchmake(self):
+    # enter a match so that there is a variety of different ratings
+    self._login()
+    self._create_match()
+    url = reverse("player-list")
+
+    response = self.client.get(url + "matchmake/")
+
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertGreater(len(response.data), 0)
+    self.assertGreater(response.data[0]["quality"], response.data[-1]["quality"])

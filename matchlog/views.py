@@ -1,5 +1,9 @@
+import itertools
 from django.contrib.auth.models import User
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from trueskill import TrueSkill
 
 from matchlog.models import Match, Player
 from matchlog.serializers import UserSerializer, PlayerSerializer, MatchSerializer, MatchResultSerializer
@@ -20,6 +24,40 @@ class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
     if userid is not None:
       queryset = queryset.filter(user__id=userid)
     return queryset
+
+  @action(detail=False)
+  def matchmake(self, request):
+    # TODO add pagination
+    players = self.get_queryset()
+    env = TrueSkill()
+    # TODO add 1v1 and 1v2
+    possible_teams = itertools.combinations(players, 2)
+    possible_matchups = itertools.combinations(possible_teams, 2)
+    matchup_qualities = []
+
+    for home_players, away_players in possible_matchups:
+      home_ratings = [env.create_rating(
+        mu=p.rating_mu, sigma=p.rating_sigma)
+        for p in home_players
+      ]
+      away_ratings = [env.create_rating(
+        mu=p.rating_mu, sigma=p.rating_sigma)
+        for p in away_players
+      ]
+      rating_groups = [home_ratings, away_ratings]
+
+      quality = env.quality(rating_groups)
+
+      home_ids = [p.id for p in home_players]
+      away_ids = [p.id for p in away_players]
+      matchup_qualities.append({
+        "teams": [home_ids, away_ids],
+        "quality": quality
+      })
+
+    matchup_qualities = sorted(matchup_qualities,
+      key=lambda m: m["quality"], reverse=True)
+    return Response(matchup_qualities)
 
 
 class MatchViewSet(viewsets.ReadOnlyModelViewSet):
