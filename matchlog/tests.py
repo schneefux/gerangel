@@ -89,8 +89,9 @@ class MatchTests(APITestCase):
     self._create_match()
     url = reverse("player-list")
 
-    response = self.client.get(url + "matchmake/")
+    response = self.client.get(url + "matchmake/?id=1&id=2&id=3&id=4")
 
     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    self.assertGreater(len(response.data), 0)
-    self.assertGreater(response.data[0]["quality"], response.data[-1]["quality"])
+    data = response.data["results"]
+    self.assertEqual(len(data), 15)
+    self.assertGreater(data[0]["quality"], data[-1]["quality"])
