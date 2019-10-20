@@ -3,39 +3,41 @@
     <div class="matchresult">
       <div class="matchresult__team matchresult__team--left">
         <div
-          v-for="player in matchResult.home_players"
+          v-for="player in leftPlayers"
           :key="player.id"
         >
           {{ player.user.username }}
         </div>
         <v-icon
-          v-if="matchResult.home_score > matchResult.away_score"
+          v-if="leftScore > rightScore"
           class="matchresult__crown matchresult__crown--left"
         >mdi-crown</v-icon>
       </div>
       <div class="matchresult__meta">
-        <div class="matchresult__score matchresult__score--left">
-          {{ matchResult.home_score }}
-        </div>
-        <div class="matchresult__score matchresult__score--center">
-          :
-        </div>
-        <div class="matchresult__score matchresult__score--right">
-          {{ matchResult.away_score }}
-        </div>
-        <div class="matchresult__date">
-          {{ new Date(matchResult.created).toLocaleDateString() }}
-        </div>
+        <slot name="center">
+          <div class="matchresult__score matchresult__score--left">
+            {{ leftScore }}
+          </div>
+          <div class="matchresult__score matchresult__score--center">
+            :
+          </div>
+          <div class="matchresult__score matchresult__score--right">
+            {{ rightScore }}
+          </div>
+          <div class="matchresult__date">
+            {{ new Date(date).toLocaleDateString() }}
+          </div>
+        </slot>
       </div>
       <div class="matchresult__team matchresult__team--right">
         <div
-          v-for="player in matchResult.away_players"
+          v-for="player in rightPlayers"
           :key="player.id"
         >
           {{ player.user.username }}
         </div>
         <v-icon
-          v-if="matchResult.home_score < matchResult.away_score"
+          v-if="leftScore < rightScore"
           class="matchresult__crown matchresult__crown--right"
         >mdi-crown</v-icon>
       </div>
@@ -46,9 +48,25 @@
 <script>
 export default {
   props: {
-    matchResult: {
-      type: Object,
+    leftPlayers: {
+      type: Array,
       required: true,
+    },
+    rightPlayers: {
+      type: Array,
+      required: true,
+    },
+    leftScore: {
+      type: Number,
+      required: true,
+    },
+    rightScore: {
+      type: Number,
+      required: true,
+    },
+    date: {
+      type: String,
+      required: false,
     },
   },
 }
@@ -83,6 +101,7 @@ export default {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    font-size: x-large;
   }
 
   &__score {
