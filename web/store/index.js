@@ -1,6 +1,6 @@
 export const state = () => ({
   version: undefined, // persristed store schema version
-  player: undefined, // logged in player
+  user: undefined, // logged in user
   token: '',
   matchResults: [],
   players: [],
@@ -8,7 +8,15 @@ export const state = () => ({
 
 export const getters = {
   isLoggedIn(state) {
-    return state.player !== undefined
+    return state.user !== undefined
+  },
+  player(state, getters) {
+    if (!getters.isLoggedIn) {
+      return undefined
+    }
+
+    return state.players.find(
+      (player) => player.user.id == state.user.id)
   },
 }
 
@@ -22,11 +30,8 @@ export const mutations = {
   setPlayers(state, players) {
     state.players = players
   },
-  addPlayer(state, player) {
-    state.players = state.players.concat(player)
-  },
-  setPlayer(state, player) {
-    state.player = player
+  setUser(state, user) {
+    state.user = user
   },
   setToken(state, token) {
     state.token = token
@@ -58,7 +63,7 @@ export const actions = {
     const data = await this.$axios.$get('/players/')
     commit('setPlayers', data.results)
   },
-  async addMatchResult({ state, commit }, matchResult) {
+  async addMatchResult({ state, commit, dispatch }, matchResult) {
     const createdMatchResult = await this.$axios.$post('/match-results/', {
       home_players: matchResult.homePlayers,
       away_players: matchResult.awayPlayers,
@@ -66,20 +71,27 @@ export const actions = {
       away_score: matchResult.awayScore,
     })
     commit('addMatchResult', joinMatchResults(state)(createdMatchResult))
+    await dispatch('loadPlayers')
   },
-  async registerUser({ commit }, user) {
-    const createdUser = await this.$axios.$post('/users/', user)
-    const player = await this.$axios.$get(`/players/?user.id=${createdUser.id}`)
-    commit('addPlayer', player.results[0])
+  async registerUser({ dispatch, commit }, user) {
+    const newUser = await this.$axios.$post('/users/', user)
+    commit('setUser', newUser)
+    await dispatch('loadPlayers')
+    await dispatch('loginUser', user)
+  },
+  async updateUser({ dispatch, commit }, user) {
+    const newUser = await this.$axios.$patch('/users/' + user.id + '/', user)
+    commit('setUser', newUser)
+    await dispatch('loadPlayers')
   },
   async loginUser({ state, commit }, user) {
     const { token } = await this.$axios.$post('/login', user)
     const player = state.players.find((player) => player.user.username == user.username)
-    commit('setPlayer', player)
+    commit('setUser', player.user)
     commit('setToken', token)
-    this.$axios.setToken('Token ' + token)
+    this.$axios.setToken('Token ' + state.token)
   },
   logout({ commit }) {
-    commit('setPlayer', undefined)
+    commit('setUser', undefined)
   },
 }

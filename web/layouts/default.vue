@@ -16,7 +16,7 @@
     >
       <v-list>
         <v-list-tile
-          v-if="player == undefined"
+          v-if="!isLoggedIn"
           to="/login"
           nuxt
         >
@@ -36,7 +36,31 @@
             <v-icon>mdi-logout</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            Ausloggen ({{ player.user.username }})
+            Ausloggen ({{ user.username }})
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile
+          v-show="isLoggedIn"
+          to="/settings"
+          nuxt
+        >
+          <v-list-tile-action>
+            <v-icon>mdi-settings</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            Einstellungen
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile
+          v-show="isLoggedIn"
+          to="/profile"
+          nuxt
+        >
+          <v-list-tile-action>
+            <v-icon>mdi-face</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            Profil
           </v-list-tile-content>
         </v-list-tile>
 
@@ -52,6 +76,7 @@
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile
+          v-show="isLoggedIn"
           to="/new-match"
           nuxt
         >
@@ -102,7 +127,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
   data() {
@@ -111,8 +136,11 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      isLoggedIn: 'isLoggedIn',
+    }),
     ...mapState({
-      player: (state) => state.player,
+      user: (state) => state.user,
     })
   },
   methods: {
