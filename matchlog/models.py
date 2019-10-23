@@ -20,8 +20,8 @@ class Rating(models.Model):
 class Player(Rating):
   user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-@receiver(post_save, sender=User)
-def create_user_player(sender, instance, created, **kwargs):
+  @receiver(post_save, sender=User)
+  def create_user_player(sender, instance, created, **kwargs):
     if created:
         Player.objects.create(user=instance)
 
