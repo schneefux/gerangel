@@ -4,7 +4,15 @@
       <h1>Matchmaking</h1>
       <v-layout row wrap>
         <v-flex xs12>
-          <!-- TODO add search -->
+          <v-text-field
+            v-model="playerSearch"
+            append-icon="search"
+            label="Spieler suchen"
+            single-line
+            hide-details
+          />
+        </v-flex>
+        <v-flex xs12>
           <v-data-table
             v-model="selectedPlayers"
             :headers="[
@@ -13,6 +21,7 @@
               { text: 'TrueSkill-Wertung', value: 'rating' }
             ]"
             :items="tablePlayers"
+            :search="playerSearch"
             item-key="id"
             class="elevation-1"
           >
@@ -80,6 +89,7 @@ export default {
   },
   data() {
     return {
+      playerSearch: '',
       selectedPlayers: [],
       matchups: [],
     }
