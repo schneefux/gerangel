@@ -30,8 +30,7 @@
 
         <v-list-tile
           v-else
-          to="/logout"
-          nuxt
+          @click="logout"
         >
           <v-list-tile-action>
             <v-icon>mdi-logout</v-icon>
@@ -103,7 +102,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
 export default {
   data() {
@@ -114,6 +113,11 @@ export default {
   computed: {
     ...mapState({
       player: (state) => state.player,
+    })
+  },
+  methods: {
+    ...mapActions({
+      logout: 'logout',
     })
   },
 }

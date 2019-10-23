@@ -78,4 +78,7 @@ export const actions = {
     commit('setToken', token)
     this.$axios.setToken('Token ' + token)
   },
+  logout({ commit }) {
+    commit('setPlayer', undefined)
+  },
 }
