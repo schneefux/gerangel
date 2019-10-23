@@ -1,43 +1,46 @@
 <template>
   <v-container fluid grid-list-md>
-    <v-layout column items-center>
-      <h1>Rangliste</h1>
-      <v-flex
-        v-for="player in sortedPlayers"
-        :key="player.id"
-        xs12
-      >
-        <v-card>
-          <v-card-title primary-title>
-            <div>
-              <div class="headline">{{ player.user.username }}</div>
-              <span>{{ Math.floor(rating(player)) }} TrueSkill</span>
-            </div>
-          </v-card-title>
-        </v-card>
-      </v-flex>
-    </v-layout>
+    <h1>Rangliste</h1>
+    <v-data-table
+      :headers="[
+        { text: 'Rang', value: 'rank' },
+        { text: 'Benutzername', value: 'name', sortable: false },
+        { text: 'TrueSkill-Wertung', value: 'rating' }
+      ]"
+      :rows-per-page-items="[10, 50, 100]"
+      :items="tableItems"
+      must-sort
+    >
+      <template v-slot:items="props">
+        <td>{{ props.item.rank }}</td>
+        <td>{{ props.item.name }}</td>
+        <td>{{ Math.floor(props.item.rating) }}</td>
+      </template>
+    </v-data-table>
   </v-container>
 </template>
 
 <script>
 import { mapState } from 'vuex'
 
-function rating(player) {
+function calculateRating(player) {
   return player.rating_mu - 1.96 * player.rating_sigma
 }
 
 export default {
-  data() {
-    return {
-      rating,
-    }
-  },
   computed: {
-    sortedPlayers() {
+    tableItems() {
       return this.players
-        .concat()
-        .sort((p1, p2) => rating(p2) - rating(p1))
+        .map((player) => ({
+          ...player,
+          rating: calculateRating(player),
+        }))
+        .sort((p1, p2) => p2.rating - p1.rating)
+        .map((player, index) => ({
+          rank: index + 1,
+          rating: player.rating,
+          name: player.user.username,
+        }))
     },
     ...mapState({
       players: (state) => state.players,
