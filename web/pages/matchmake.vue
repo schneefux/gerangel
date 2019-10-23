@@ -1,6 +1,7 @@
 <template>
   <v-form>
     <v-container>
+      <h1>Matchmaking</h1>
       <v-layout row wrap>
         <v-flex xs12>
           <!-- TODO add search -->
