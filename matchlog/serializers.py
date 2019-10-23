@@ -160,6 +160,7 @@ class MatchTeamSerializer(serializers.ModelSerializer):
 class MatchPlayerSerializer(serializers.ModelSerializer):
   player = PlayerSerializer(read_only=True)
   team = MatchTeamSerializer(read_only=True)
+  rating = serializers.ReadOnlyField()
 
   class Meta:
     model = MatchPlayer

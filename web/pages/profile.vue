@@ -11,20 +11,49 @@
         <p>
           Wertung: {{ Math.floor(player.rating) }} TrueSkill
         </p>
+        <v-sparkline
+          :value="ratings"
+          :labels="dates"
+          padding="16"
+        />
       </v-container>
     </v-card>
   </v-container>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
   computed: {
+    ratings() {
+      return this.userRatings
+        .map((matchPlayer) => matchPlayer.rating)
+    },
+    dates() {
+      return this.userRatings
+        .map((matchPlayer) => matchPlayer.team.match.created)
+        .map((date) => new Date(Date.parse(date)).toLocaleDateString())
+    },
+    ...mapState({
+      userRatings: (state) => state.userRatings,
+    }),
     ...mapGetters({
       player: 'player',
       isLoggedIn: 'isLoggedIn',
     }),
+  },
+  watch: {
+    async isLoggedIn(loggedIn) {
+      if (loggedIn && this.userRatings.length == 0) {
+        await this.loadUserRatings()
+      }
+    },
+  },
+  methods: {
+    ...mapActions({
+      loadUserRatings: 'loadUserRatings',
+    })
   },
 }
 </script>

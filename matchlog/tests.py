@@ -95,3 +95,25 @@ class MatchTests(APITestCase):
     data = response.data["results"]
     self.assertEqual(len(data), 15)
     self.assertGreater(data[0]["quality"], data[-1]["quality"])
+
+  def test_should_list_match_players(self):
+    self._login()
+    self._create_match()
+    url = reverse("match-players-list")
+
+    response = self.client.get(url)
+
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(len(response.data["results"]), 4)
+
+  def test_should_filter_match_players_by_user_id(self):
+    self._login()
+    self._create_match()
+    self.client.login(username="test2", password="test2")
+    self._create_match()
+    url = reverse("match-players-list")
+
+    response = self.client.get(url + "?player.user.id=1")
+
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(len(response.data["results"]), 2)

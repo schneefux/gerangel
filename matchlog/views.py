@@ -4,8 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from trueskill import TrueSkill
 
-from matchlog.models import Match, Player
-from matchlog.serializers import UserSerializer, PlayerSerializer, MatchSerializer, MatchResultSerializer, MatchupSerializer
+from matchlog.models import Match, MatchPlayer, Player
+from matchlog.serializers import UserSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, MatchResultSerializer, MatchupSerializer
 from matchlog.permissions import IsHistoricallySafe
 
 
@@ -36,6 +36,17 @@ class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
     serializer = MatchupSerializer(queryset)
     page = self.paginate_queryset(serializer.data)
     return self.get_paginated_response(page)
+
+
+class MatchPlayerViewSet(viewsets.ReadOnlyModelViewSet):
+  serializer_class = MatchPlayerSerializer
+
+  def get_queryset(self):
+    queryset = MatchPlayer.objects.all().order_by("-id")
+    user_id = self.request.query_params.get("player.user.id")
+    if user_id is not None:
+      queryset = queryset.filter(player__user__id=user_id)
+    return queryset
 
 
 class MatchViewSet(viewsets.ReadOnlyModelViewSet):

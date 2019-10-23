@@ -4,6 +4,7 @@ export const state = () => ({
   token: '',
   matchResults: [],
   players: [],
+  userRatings: [],
 })
 
 export const getters = {
@@ -14,7 +15,6 @@ export const getters = {
     if (!getters.isLoggedIn) {
       return undefined
     }
-
     return state.players.find(
       (player) => player.user.id == state.user.id)
   },
@@ -35,6 +35,9 @@ export const mutations = {
   },
   setToken(state, token) {
     state.token = token
+  },
+  setUserRatings(state, userRatings) {
+    state.userRatings = userRatings
   },
 }
 
@@ -93,5 +96,9 @@ export const actions = {
   },
   logout({ commit }) {
     commit('setUser', undefined)
+  },
+  async loadUserRatings({ commit, state }) {
+    const userRatings = await this.$axios.$get('/match-players/?player.user.id=' + state.user.id)
+    commit('setUserRatings', userRatings.results)
   },
 }
