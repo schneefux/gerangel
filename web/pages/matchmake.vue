@@ -34,6 +34,7 @@
           <v-layout row justify-end>
             <v-btn to="/">Zurück</v-btn>
             <v-btn
+              :disabled="!minPoolSizeReached"
               color="primary"
               @click="submit"
             >
@@ -99,6 +100,9 @@ export default {
     },
   },
   computed: {
+    minPoolSizeReached() {
+      return this.selectedPlayers.length >= 4
+    },
     tablePlayers() {
       return this.players.map((player) => ({
         id: player.id,
