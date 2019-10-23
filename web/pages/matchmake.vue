@@ -30,6 +30,18 @@
         </v-flex>
 
         <v-flex xs12>
+          <v-layout row justify-end>
+            <v-btn to="/">Zurück</v-btn>
+            <v-btn
+              color="primary"
+              @click="submit"
+            >
+              Berechnen
+            </v-btn>
+          </v-layout>
+        </v-flex>
+
+        <v-flex xs12>
           <v-flex
             v-for="(matchup, index) in matchups"
             :key="index"
@@ -50,18 +62,6 @@
               </v-flex>
             </v-layout>
           </v-flex>
-        </v-flex>
-
-        <v-flex xs12>
-          <v-layout row justify-end>
-            <v-btn to="/">Zurück</v-btn>
-            <v-btn
-              color="primary"
-              @click="submit"
-            >
-              Berechnen
-            </v-btn>
-          </v-layout>
         </v-flex>
       </v-layout>
     </v-container>
