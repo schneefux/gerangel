@@ -1,4 +1,5 @@
 export const state = () => ({
+  version: undefined, // persristed store schema version
   player: undefined, // logged in player
   token: '',
   matchResults: [],
