@@ -6,6 +6,9 @@ export const state = () => ({
 })
 
 export const getters = {
+  isLoggedIn(state) {
+    return state.player !== undefined
+  },
 }
 
 export const mutations = {

@@ -2,6 +2,7 @@
   <v-container fluid grid-list-md>
     <v-layout column items-center>
       <v-btn
+        v-show="isLoggedIn"
         color="primary"
         to="/new-match"
         nuxt
@@ -34,7 +35,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import MatchResultCard from '~/components/match-result-card'
 
 export default {
@@ -42,6 +43,9 @@ export default {
     MatchResultCard
   },
   computed: {
+    ...mapGetters({
+      isLoggedIn: 'isLoggedIn',
+    }),
     ...mapState({
       matchResults: (state) => state.matchResults,
     })
