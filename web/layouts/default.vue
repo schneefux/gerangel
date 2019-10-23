@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-toolbar app>
-      <v-toolbar-side-icon @click="drawerOpen = true" />
+      <v-toolbar-side-icon @click="drawerOpen = !drawerOpen" />
       <v-toolbar-title>
         Gerangel [ɡəˈʁaŋl̩]
       </v-toolbar-title>
