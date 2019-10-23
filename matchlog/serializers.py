@@ -14,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class PlayerSerializer(serializers.ModelSerializer):
   user = UserSerializer(read_only=True)
+  rating = serializers.ReadOnlyField()
 
   class Meta:
     model = Player

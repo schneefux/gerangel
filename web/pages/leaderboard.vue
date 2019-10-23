@@ -23,18 +23,11 @@
 <script>
 import { mapState } from 'vuex'
 
-function calculateRating(player) {
-  return player.rating_mu - 1.96 * player.rating_sigma
-}
-
 export default {
   computed: {
     tableItems() {
       return this.players
-        .map((player) => ({
-          ...player,
-          rating: calculateRating(player),
-        }))
+        .concat()
         .sort((p1, p2) => p2.rating - p1.rating)
         .map((player, index) => ({
           rank: index + 1,

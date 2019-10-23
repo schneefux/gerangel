@@ -12,6 +12,10 @@ class Rating(models.Model):
   class Meta:
     abstract = True
 
+  @property
+  def rating(self):
+    return self.rating_mu - 1.96 * self.rating_sigma
+
 
 class Player(Rating):
   user = models.OneToOneField(User, on_delete=models.CASCADE)
