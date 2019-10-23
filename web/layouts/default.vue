@@ -64,6 +64,17 @@
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile
+          to="/matchmake"
+          nuxt
+        >
+          <v-list-tile-action>
+            <v-icon>mdi-auto-fix</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            Matchmaking
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile
           to="/leaderboard"
           nuxt
         >
