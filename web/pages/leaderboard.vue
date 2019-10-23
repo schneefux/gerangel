@@ -8,8 +8,9 @@
         { text: 'TrueSkill-Wertung', value: 'rating' }
       ]"
       :rows-per-page-items="[10, 50, 100]"
-      :items="tableItems"
+      :items="tablePlayers"
       must-sort
+      class="elevation-1"
     >
       <template v-slot:items="props">
         <td>{{ props.item.rank }}</td>
@@ -25,7 +26,7 @@ import { mapState } from 'vuex'
 
 export default {
   computed: {
-    tableItems() {
+    tablePlayers() {
       return this.players
         .concat()
         .sort((p1, p2) => p2.rating - p1.rating)

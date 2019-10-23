@@ -2,29 +2,32 @@
   <v-form>
     <v-container>
       <v-layout row wrap>
-        <v-container grid-list-md fluid>
-          <v-list>
-            <v-layout col wrap>
-              <v-flex
-                v-for="player in players"
-                :key="player.id"
-                xs12
-                md3
-                @click.stop="togglePlayerSelected(player.id)"
-              >
-                <v-list-tile @click="() => {}">
-                  <v-list-tile-action>
-                    <v-checkbox :value="playerSelected[player.id]"></v-checkbox>
-                  </v-list-tile-action>
-
-                  <v-list-tile-content>
-                    <v-list-tile-title>{{ player.user.username }}</v-list-tile-title>
-                  </v-list-tile-content>
-                </v-list-tile>
-              </v-flex>
-            </v-layout>
-          </v-list>
-        </v-container>
+        <v-flex xs12>
+          <!-- TODO add search -->
+          <v-data-table
+            v-model="selectedPlayers"
+            :headers="[
+              { text: 'Verfügbar', value: 'selected', sortable: false },
+              { text: 'Benutzername', value: 'name', sortable: false },
+              { text: 'TrueSkill-Wertung', value: 'rating' }
+            ]"
+            :items="tablePlayers"
+            item-key="id"
+            class="elevation-1"
+          >
+            <template v-slot:items="props">
+              <td>
+                <v-checkbox
+                  v-model="props.selected"
+                  primary
+                  hide-details
+                />
+              </td>
+              <td>{{ props.item.name }}</td>
+              <td>{{ Math.floor(props.item.rating) }}</td>
+            </template>
+          </v-data-table>
+        </v-flex>
 
         <v-flex xs12>
           <v-flex
@@ -75,18 +78,14 @@ export default {
   },
   data() {
     return {
-      playerSelected: {},
+      selectedPlayers: [],
       matchups: [],
     }
   },
   methods: {
-    togglePlayerSelected(playerId) {
-      const selected = this.playerSelected[playerId] === true
-      this.$set(this.playerSelected, playerId, !selected)
-    },
     async submit() {
-      const query = [...Object.keys(this.playerSelected)]
-        .map((id) => 'id=' + id)
+      const query = this.selectedPlayers
+        .map((player) => 'id=' + player.id)
         .join('&')
       const response = await this.$axios.$get('/players/matchmake/?' + query)
       const matchups = response.results
@@ -99,6 +98,13 @@ export default {
     },
   },
   computed: {
+    tablePlayers() {
+      return this.players.map((player) => ({
+        id: player.id,
+        name: player.user.username,
+        rating: player.rating,
+      }))
+    },
     ...mapState({
       players: (state) => state.players,
     })
