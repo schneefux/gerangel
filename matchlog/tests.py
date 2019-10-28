@@ -93,7 +93,7 @@ class MatchTests(APITestCase):
 
     self.assertEqual(response.status_code, status.HTTP_200_OK)
     data = response.data["results"]
-    self.assertEqual(len(data), 3)
+    self.assertEqual(len(data), 21)
     self.assertGreater(data[0]["quality"], data[-1]["quality"])
 
   def test_should_list_match_players(self):
