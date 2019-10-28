@@ -176,6 +176,8 @@ class MatchupSerializer(serializers.ListSerializer):
     # TODO add 1v1 and 1v2
     possible_teams = itertools.combinations(players, 2)
     possible_matchups = itertools.combinations(possible_teams, 2)
+    all_players_distinct = lambda h, a: len(set(h) - set(a)) == len(set(h))
+    possible_matchups = [(h, a) for h, a in possible_matchups if all_players_distinct(h, a)]
     matchup_qualities = []
 
     for home_players, away_players in possible_matchups:
