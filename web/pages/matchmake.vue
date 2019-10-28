@@ -111,7 +111,7 @@ export default {
   },
   computed: {
     minPoolSizeReached() {
-      return this.selectedPlayers.length >= 4
+      return this.selectedPlayers.length >= 2
     },
     tablePlayers() {
       return this.players.map((player) => ({
