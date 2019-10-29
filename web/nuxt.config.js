@@ -43,6 +43,7 @@ export default {
   plugins: [
     '@/plugins/vuetify',
     { src: '@/plugins/persist', mode: 'client' },
+    { src: '@/plugins/plotly', mode: 'client' },
   ],
 
   /*

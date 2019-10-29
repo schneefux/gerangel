@@ -135,17 +135,22 @@ export default {
       drawerOpen: false,
     }
   },
+  watch: {
+    storeVersion: 'nuxtClientInit',
+  },
   computed: {
     ...mapGetters({
       isLoggedIn: 'isLoggedIn',
     }),
     ...mapState({
       user: (state) => state.user,
+      storeVersion: (state) => state.version,
     })
   },
   methods: {
     ...mapActions({
       logout: 'logout',
+      nuxtClientInit: 'nuxtClientInit',
     })
   },
 }

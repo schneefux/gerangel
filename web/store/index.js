@@ -57,6 +57,11 @@ export const actions = {
     await dispatch('loadPlayers')
     await dispatch('loadMatchResults')
   },
+  async nuxtClientInit({ dispatch }) {
+    // called by layout after vuex-persist has loaded the state
+    console.log('nuxtClientInit')
+    await dispatch('loadUserRatings')
+  },
   async loadMatchResults({ state, commit }) {
     const data = await this.$axios.$get('/match-results/')
     const matchResults = data.results.map(joinMatchResults(state))
@@ -87,17 +92,24 @@ export const actions = {
     commit('setUser', newUser)
     await dispatch('loadPlayers')
   },
-  async loginUser({ state, commit }, user) {
+  async loginUser({ state, commit, dispatch }, user) {
     const { token } = await this.$axios.$post('/login', user)
     const player = state.players.find((player) => player.user.username == user.username)
     commit('setUser', player.user)
     commit('setToken', token)
     this.$axios.setToken('Token ' + state.token)
+
+    await dispatch('loadUserRatings')
   },
   logout({ commit }) {
     commit('setUser', undefined)
   },
-  async loadUserRatings({ commit, state }) {
+  async loadUserRatings({ commit, state, getters }) {
+    console.log('load ratings', getters.isLoggedIn)
+    if (!getters.isLoggedIn) {
+      return
+    }
+
     const userRatings = await this.$axios.$get('/match-players/?player.user.id=' + state.user.id)
     commit('setUserRatings', userRatings.results)
   },
