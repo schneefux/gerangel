@@ -59,7 +59,6 @@ export const actions = {
   },
   async nuxtClientInit({ dispatch }) {
     // called by layout after vuex-persist has loaded the state
-    console.log('nuxtClientInit')
     await dispatch('loadUserRatings')
   },
   async loadMatchResults({ state, commit }) {
@@ -105,7 +104,6 @@ export const actions = {
     commit('setUser', undefined)
   },
   async loadUserRatings({ commit, state, getters }) {
-    console.log('load ratings', getters.isLoggedIn)
     if (!getters.isLoggedIn) {
       return
     }

@@ -35,7 +35,6 @@ export default {
         },
         fillcolor: this.$vuetify.theme.primary,
       }))
-      console.log(this.$vuetify.theme.primary)
 
       this.plot = this.$plotly.newPlot(this.$refs.graph, traces, {
         xaxis: {
