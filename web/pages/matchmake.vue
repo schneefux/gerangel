@@ -22,6 +22,7 @@
             ]"
             :items="tablePlayers"
             :search="playerSearch"
+            :rows-per-page-items="[10, 50, 100]"
             item-key="id"
             class="elevation-1"
           >
