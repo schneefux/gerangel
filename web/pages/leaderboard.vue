@@ -5,16 +5,20 @@
       :headers="[
         { text: 'Rang', value: 'rank' },
         { text: 'Benutzername', value: 'name', sortable: false },
-        { text: 'TrueSkill-Wertung', value: 'rating' }
+        { text: 'TrueSkill-Wertung', value: 'rating' },
       ]"
       :rows-per-page-items="[10, 50, 100]"
       :items="tablePlayers"
       must-sort
-      class="elevation-1"
+      class="elevation-1 mt-3"
     >
       <template v-slot:items="props">
         <td>{{ props.item.rank }}</td>
-        <td>{{ props.item.name }}</td>
+        <td>
+          <nuxt-link :to="'profile/' + props.item.id">
+            {{ props.item.name }}
+          </nuxt-link>
+        </td>
         <td>{{ Math.floor(props.item.rating) }}</td>
       </template>
     </v-data-table>
@@ -31,6 +35,7 @@ export default {
         .concat()
         .sort((p1, p2) => p2.rating - p1.rating)
         .map((player, index) => ({
+          id: player.id,
           rank: index + 1,
           rating: player.rating,
           name: player.user.username,

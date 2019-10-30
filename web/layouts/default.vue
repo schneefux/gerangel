@@ -55,6 +55,7 @@
           v-show="isLoggedIn"
           to="/profile"
           nuxt
+          exact
         >
           <v-list-tile-action>
             <v-icon>mdi-face</v-icon>
