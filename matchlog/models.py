@@ -14,7 +14,7 @@ class Rating(models.Model):
 
   @property
   def rating(self):
-    return self.rating_mu - 1.96 * self.rating_sigma
+    return self.rating_mu - 1 * self.rating_sigma
 
 
 class Player(Rating):
