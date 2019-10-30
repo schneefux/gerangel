@@ -27,8 +27,9 @@ export default {
   },
   computed: {
     ratings() {
-      return this.userRatings
-        .map((mp) => ({ mu: mp.rating_mu, sigma: mp.rating_sigma }))
+      return [{ mu: this.player.rating_mu, sigma: this.player.rating_sigma }].concat(
+        this.userRatings.map((mp) => ({ mu: mp.rating_mu, sigma: mp.rating_sigma }))
+      )
     },
     ...mapState({
       userRatings: (state) => state.userRatings,
