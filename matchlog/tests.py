@@ -95,6 +95,7 @@ class MatchTests(APITestCase):
     data = response.data["results"]
     self.assertEqual(len(data), 21)
     self.assertGreater(data[0]["quality"], data[-1]["quality"])
+    self.assertGreater(data[0]["win_probability"][0], data[0]["win_probability"][1])
 
   def test_should_list_match_players(self):
     self._login()

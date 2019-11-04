@@ -64,8 +64,8 @@
                 <match-result-card
                   :left-players="matchup.teams[0]"
                   :right-players="matchup.teams[1]"
-                  :left-score="1"
-                  :right-score="0"
+                  :left-score="matchup.win_probability[0]"
+                  :right-score="matchup.win_probability[1]"
                 >
                   <template v-slot:center>
                     {{ (100 * matchup.quality).toFixed(2) }}%
