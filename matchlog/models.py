@@ -41,3 +41,10 @@ class MatchPlayer(Rating):
   # store pre-match player ratings
   player = models.ForeignKey(Player, on_delete=models.CASCADE)
   team = models.ForeignKey(MatchTeam, on_delete=models.CASCADE)
+
+
+class MatchTeamSet(models.Model):
+  match_team = models.ForeignKey(MatchTeam, on_delete=models.CASCADE)
+  index = models.IntegerField()
+  points = models.IntegerField()
+  color = models.CharField(max_length=255)

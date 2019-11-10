@@ -4,7 +4,7 @@ from trueskill import TrueSkill
 import itertools
 import math
 
-from matchlog.models import Match, Player, MatchPlayer, MatchTeam
+from matchlog.models import Match, Player, MatchPlayer, MatchTeam, MatchTeamSet
 
 
 def win_probability(env, team1, team2):
@@ -56,35 +56,64 @@ class MatchResultSerializer(serializers.BaseSerializer):
     away_score = data.get("away_score")
     home_players = data.get("home_players")
     away_players = data.get("away_players")
+    sets = data.get("sets")
 
-    if not home_score:
+    if home_score is None:
       raise serializers.ValidationError({
         "home_score": "This field is required."
       })
-    if not away_score:
+    if away_score is None:
       raise serializers.ValidationError({
         "away_score": "This field is required."
       })
-    if not home_players:
+    if home_players is None:
       raise serializers.ValidationError({
         "home_players": "This field is required."
       })
-    if not away_players:
+    if away_players is None:
       raise serializers.ValidationError({
         "away_players": "This field is required."
       })
+    if sets is None:
+      sets = []
+    for s in sets:
+      if not "home_color" in s:
+        raise serializers.ValidationError({
+          "sets[].home_color": "This field is required."
+        })
+      if not "away_color" in s:
+        raise serializers.ValidationError({
+          "sets[].away_color": "This field is required."
+        })
+      if not "home_points" in s:
+        raise serializers.ValidationError({
+          "sets[].home_points": "This field is required."
+        })
+      if not "away_points" in s:
+        raise serializers.ValidationError({
+          "sets[].away_points": "This field is required."
+        })
 
     return {
       "home_score": home_score,
       "away_score": away_score,
       "home_players": home_players,
       "away_players": away_players,
+      "sets": sets,
     }
 
   def to_representation(self, instance):
     home_team, away_team = MatchTeam.objects.filter(match=instance)
     home_players = MatchPlayer.objects.filter(team=home_team)
     away_players = MatchPlayer.objects.filter(team=away_team)
+    home_sets = MatchTeamSet.objects.filter(match_team=home_team).order_by("index")
+    away_sets = MatchTeamSet.objects.filter(match_team=away_team).order_by("index")
+    sets = [{
+      "home_color": home_set.color,
+      "away_color": away_set.color,
+      "home_points": home_set.points,
+      "away_points": away_set.points,
+    } for home_set, away_set in zip(home_sets, away_sets)]
     return {
       "id": instance.id,
       "created": instance.created,
@@ -93,6 +122,7 @@ class MatchResultSerializer(serializers.BaseSerializer):
       "away_players": [mp.player_id for mp in away_players],
       "home_score": home_team.score,
       "away_score": away_team.score,
+      "sets": sets,
     }
 
   def create(self, data):
@@ -106,6 +136,15 @@ class MatchResultSerializer(serializers.BaseSerializer):
     home_team.save()
     away_team = MatchTeam(index=1, score=away_score, match=match)
     away_team.save()
+
+    sets = data["sets"]
+    for index, s in enumerate(sets):
+      home_team_set = MatchTeamSet(match_team=home_team, index=index,
+        points=s["home_points"], color=s["home_color"])
+      away_team_set = MatchTeamSet(match_team=away_team, index=index,
+        points=s["away_points"], color=s["away_color"])
+      home_team_set.save()
+      away_team_set.save()
 
     # load players from database
     home_players = data["home_players"]
