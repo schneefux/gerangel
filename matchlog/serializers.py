@@ -21,7 +21,16 @@ def win_probability(env, team1, team2):
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
-    fields = ('url', 'id', 'username')
+    fields = ('url', 'id', 'username', 'password')
+    extra_kwargs = {
+      'password': {'write_only': True},
+    }
+
+  def create(self, validated_data):
+    user = super(UserSerializer, self).create(validated_data)
+    user.set_password(validated_data['password'])
+    user.save()
+    return user
 
 
 class PlayerSerializer(serializers.ModelSerializer):

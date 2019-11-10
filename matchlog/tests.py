@@ -28,6 +28,31 @@ class MatchTests(APITestCase):
     is_logged_in = self._login()
     self.assertTrue(is_logged_in)
 
+  def test_should_register(self):
+    url = reverse("user-list")
+
+    data = {
+      "username": "foo",
+      "password": "bar",
+    }
+    response = self.client.post(url, data, format="json")
+
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+  def test_should_register_and_login(self):
+    url = reverse("user-list")
+    data = {
+      "username": "foo",
+      "password": "bar",
+    }
+    self.client.post(url, data, format="json")
+
+    url = reverse("login")
+    response = self.client.post(url, data)
+
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertIn("token", response.data)
+
   def test_should_allow_guest_read_matches(self):
     url = reverse("matches-results-list")
     response = self.client.get(url)
