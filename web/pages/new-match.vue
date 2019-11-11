@@ -70,74 +70,92 @@
 
         <v-flex xs12>
           <h6 class="subheading">Sätze (optional)</h6>
-            <v-card
-              v-for="(set, index) in sets"
-              :key="index"
-              class="mt-2"
-            >
-              <v-container grid-list-lg fluid>
-                <v-layout row wrap justify-space-between>
-                  <v-flex xs2 class="my-auto">
-                    <span>Heim</span>
-                  </v-flex>
-                  <v-flex xs7>
-                    <v-radio-group v-model="set.homeColor" row>
-                      <v-radio
-                        label="rot"
-                        color="red"
-                        value="red"
-                      />
-                      <v-radio
-                        label="blau"
-                        color="blue"
-                        value="blue"
-                      />
-                    </v-radio-group>
-                  </v-flex>
-                  <v-flex xs3>
-                    <v-text-field
-                      v-model="set.homePoints"
-                      label="Tore"
-                      type="number"
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex xs2 class="my-auto">
-                    <span>Gast</span>
-                  </v-flex>
-                  <v-flex xs7>
-                    <v-radio-group v-model="set.awayColor" row>
-                      <v-radio
-                        label="rot"
-                        color="red"
-                        value="red"
-                      />
-                      <v-radio
-                        label="blau"
-                        color="blue"
-                        value="blue"
-                      />
-                    </v-radio-group>
-                  </v-flex>
-                  <v-flex xs3>
-                    <v-text-field
-                      v-model="set.awayPoints"
-                      label="Tore"
-                      type="number"
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card>
-          </v-flex>
-          <v-btn
-            icon
-            color="primary"
-            @click="addSet()"
+          <v-card
+            v-for="(set, index) in sets"
+            :key="index"
+            class="mt-4"
           >
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
+            <v-container grid-list-lg fluid>
+              <v-layout row wrap justify-space-between>
+                <v-flex xs2 class="my-auto">
+                  <span>Heim</span>
+                </v-flex>
+                <v-flex xs7>
+                  <v-radio-group
+                    v-model="set.homeColor"
+                    row
+                  >
+                    <v-radio
+                      label="rot"
+                      color="red"
+                      value="red"
+                    />
+                    <v-radio
+                      label="blau"
+                      color="blue"
+                      value="blue"
+                    />
+                  </v-radio-group>
+                </v-flex>
+                <v-flex xs3>
+                  <v-text-field
+                    v-model="set.homePoints"
+                    label="Tore"
+                    type="number"
+                    required
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs2 class="my-auto">
+                  <span>Gast</span>
+                </v-flex>
+                <v-flex xs7>
+                  <v-radio-group
+                    v-model="set.awayColor"
+                    row
+                  >
+                    <v-radio
+                      label="rot"
+                      color="red"
+                      value="red"
+                    />
+                    <v-radio
+                      label="blau"
+                      color="blue"
+                      value="blue"
+                    />
+                  </v-radio-group>
+                </v-flex>
+                <v-flex xs3>
+                  <v-text-field
+                    v-model="set.awayPoints"
+                    label="Tore"
+                    type="number"
+                    required
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+              <v-btn
+                fab
+                absolute
+                top
+                right
+                round
+                small
+                @click="removeSet(index)"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </v-container>
+          </v-card>
+          <div class="mt-3">
+            <v-btn
+              round
+              @click="addSet()"
+            >
+              <v-icon left>mdi-plus</v-icon>
+              neuer satz
+            </v-btn>
+          </div>
         </v-flex>
 
         <v-flex xs12>
@@ -180,6 +198,9 @@ export default {
         awayColor: '',
       })
     },
+    removeSet(index) {
+      this.sets = this.sets.filter((set, sIndex) => index != sIndex)
+    },
     async submit() {
       if (!this.$refs.form.validate()) {
         return
@@ -211,6 +232,12 @@ export default {
           }
           if (set.homeColor == 'blue') {
             set.awayColor = 'red'
+          }
+          if (set.awayColor == 'red') {
+            set.homeColor = 'blue'
+          }
+          if (set.awayColor == 'blue') {
+            set.homeColor = 'red'
           }
         })
       },
