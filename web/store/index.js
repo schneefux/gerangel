@@ -71,11 +71,18 @@ export const actions = {
     commit('setPlayers', data.results)
   },
   async addMatchResult({ state, commit, dispatch }, matchResult) {
+    const sets = matchResult.sets.map(set => ({
+      home_points: set.homePoints,
+      away_points: set.awayPoints,
+      home_color: set.homeColor,
+      away_color: set.awayColor,
+    }))
     const createdMatchResult = await this.$axios.$post('/match-results/', {
       home_players: matchResult.homePlayers,
       away_players: matchResult.awayPlayers,
       home_score: matchResult.homeScore,
       away_score: matchResult.awayScore,
+      sets,
     })
     commit('addMatchResult', joinMatchResults(state)(createdMatchResult))
     await dispatch('loadPlayers')

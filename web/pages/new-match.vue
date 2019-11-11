@@ -28,6 +28,7 @@
               <v-text-field
                 v-model="homeScore"
                 :rules="scoreRules"
+                :disabled="sets.length > 0"
                 label="Punkte"
                 type="number"
                 required
@@ -58,12 +59,85 @@
               <v-text-field
                 v-model="awayScore"
                 :rules="scoreRules"
+                :disabled="sets.length > 0"
                 label="Punkte"
                 type="number"
                 required
               ></v-text-field>
             </v-flex>
           </v-layout>
+        </v-flex>
+
+        <v-flex xs12>
+          <h6 class="subheading">Sätze (optional)</h6>
+            <v-card
+              v-for="(set, index) in sets"
+              :key="index"
+              class="mt-2"
+            >
+              <v-container grid-list-lg fluid>
+                <v-layout row wrap justify-space-between>
+                  <v-flex xs2 class="my-auto">
+                    <span>Heim</span>
+                  </v-flex>
+                  <v-flex xs7>
+                    <v-radio-group v-model="set.homeColor" row>
+                      <v-radio
+                        label="rot"
+                        color="red"
+                        value="red"
+                      />
+                      <v-radio
+                        label="blau"
+                        color="blue"
+                        value="blue"
+                      />
+                    </v-radio-group>
+                  </v-flex>
+                  <v-flex xs3>
+                    <v-text-field
+                      v-model="set.homePoints"
+                      label="Tore"
+                      type="number"
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs2 class="my-auto">
+                    <span>Gast</span>
+                  </v-flex>
+                  <v-flex xs7>
+                    <v-radio-group v-model="set.awayColor" row>
+                      <v-radio
+                        label="rot"
+                        color="red"
+                        value="red"
+                      />
+                      <v-radio
+                        label="blau"
+                        color="blue"
+                        value="blue"
+                      />
+                    </v-radio-group>
+                  </v-flex>
+                  <v-flex xs3>
+                    <v-text-field
+                      v-model="set.awayPoints"
+                      label="Tore"
+                      type="number"
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card>
+          </v-flex>
+          <v-btn
+            icon
+            color="primary"
+            @click="addSet()"
+          >
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
         </v-flex>
 
         <v-flex xs12>
@@ -94,9 +168,18 @@ export default {
       homeScore: undefined,
       awayScore: undefined,
       valid: true,
+      sets: [],
     }
   },
   methods: {
+    addSet() {
+      this.sets.push({
+        homePoints: 0,
+        awayPoints: 0,
+        homeColor: '',
+        awayColor: '',
+      })
+    },
     async submit() {
       if (!this.$refs.form.validate()) {
         return
@@ -107,6 +190,7 @@ export default {
         awayPlayers: this.awayPlayers,
         homeScore: this.homeScore,
         awayScore: this.awayScore,
+        sets: this.sets,
       })
 
       this.$router.push('/')
@@ -114,6 +198,23 @@ export default {
     ...mapActions({
       addMatchResult: 'addMatchResult',
     })
+  },
+  watch: {
+    sets: {
+      deep: true,
+      handler() {
+        this.homeScore = this.sets.filter((s) => s.homePoints >= s.awayPoints).length
+        this.awayScore = this.sets.filter((s) => s.homePoints <= s.awayPoints).length
+        this.sets.forEach((set) => {
+          if (set.homeColor == 'red') {
+            set.awayColor = 'blue'
+          }
+          if (set.homeColor == 'blue') {
+            set.awayColor = 'red'
+          }
+        })
+      },
+    },
   },
   computed: {
     differentFromAwayPlayers() {
@@ -140,3 +241,10 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.my-auto {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+</style>
