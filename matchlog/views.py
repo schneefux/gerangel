@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import Sum
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -36,6 +37,22 @@ class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
     serializer = MatchupSerializer(queryset)
     page = self.paginate_queryset(serializer.data)
     return self.get_paginated_response(page)
+
+  @action(detail=True)
+  def stats(self, request, pk=None):
+    player = self.get_object()
+    # TODO use queries for everything
+    matchplayers = player.matchplayer_set.all()
+    matchteams = [p.team for p in matchplayers]
+    return Response({
+      "count": player.matchplayer_set.count(),
+      "wins": len([t for t in matchteams if t.winner]),
+      "sets": sum([t.matchteamset_set.count() for t in matchteams]),
+      "points": sum([
+        t.matchteamset_set.aggregate(points=Sum("points"))["points"] or 0
+        for t in matchteams
+      ]),
+    })
 
 
 class MatchPlayerViewSet(viewsets.ReadOnlyModelViewSet):

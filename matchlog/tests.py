@@ -24,6 +24,27 @@ class MatchTests(APITestCase):
     }
     return self.client.post(url, data, format="json")
 
+  def _create_match_with_sets(self):
+    url = reverse("matches-results-list")
+    data = {
+      "home_score": 2,
+      "away_score": 0,
+      "home_players": [1, 2],
+      "away_players": [3, 4],
+      "sets": [{
+        "home_color": "red",
+        "away_color": "blue",
+        "home_points": 8,
+        "away_points": 1,
+      }, {
+        "home_color": "blue",
+        "away_color": "red",
+        "home_points": 1,
+        "away_points": 8,
+      }]
+    }
+    return self.client.post(url, data, format="json")
+
   def test_should_login(self):
     is_logged_in = self._login()
     self.assertTrue(is_logged_in)
@@ -146,27 +167,22 @@ class MatchTests(APITestCase):
 
   def test_should_add_set_to_match(self):
     self._login()
-    url = reverse("matches-results-list")
 
-    data = {
-      "home_score": 2,
-      "away_score": 0,
-      "home_players": [1, 2],
-      "away_players": [3, 4],
-      "sets": [{
-        "home_color": "red",
-        "away_color": "blue",
-        "home_points": 8,
-        "away_points": 1,
-      }, {
-        "home_color": "blue",
-        "away_color": "red",
-        "home_points": 1,
-        "away_points": 8,
-      }]
-    }
-    response = self.client.post(url, data, format="json")
+    response = self._create_match_with_sets()
 
     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
     self.assertEqual(MatchTeamSet.objects.count(), 4)
     self.assertEqual(len(response.data["sets"]), 2)
+
+  def test_should_aggregate_player_stats(self):
+    self._login()
+    self._create_match_with_sets()
+    url = reverse("player-list")
+
+    response = self.client.get(url + "1/stats/")
+
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(response.data["count"], 1)
+    self.assertEqual(response.data["sets"], 2)
+    self.assertEqual(response.data["wins"], 1)
+    self.assertEqual(response.data["points"], 9)

@@ -36,6 +36,14 @@ class MatchTeam(models.Model):
   score = models.IntegerField()
   match = models.ForeignKey(Match, on_delete=models.CASCADE)
 
+  # TODO store this on the model
+  @property
+  def winner(self):
+    for enemy in self.match.matchteam_set.all():
+      if self.score < enemy.score:
+        return False
+    return True
+
 
 class MatchPlayer(Rating):
   # store pre-match player ratings
