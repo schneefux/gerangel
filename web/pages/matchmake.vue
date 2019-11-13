@@ -61,12 +61,7 @@
           >
             <v-layout justify-center>
               <v-flex xs12 sm6 md4 lg3>
-                <match-result-card
-                  :left-players="matchup.teams[0]"
-                  :right-players="matchup.teams[1]"
-                  :left-score="matchup.win_probability[0]"
-                  :right-score="matchup.win_probability[1]"
-                >
+                <match-result-card :teams="matchup.teams">
                   <template v-slot:center>
                     {{ (100 * matchup.quality).toFixed(2) }}%
                   </template>
@@ -81,7 +76,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 import MatchResultCard from '../components/match-result-card.vue'
 
 export default {
@@ -103,11 +98,13 @@ export default {
       const response = await this.$axios.$get('/players/matchmake/?' + query)
       const matchups = response.results
       this.matchups = matchups.map(matchup => ({
-        ...matchup,
-        teams: matchup.teams.map(team =>
-          team.map(playerId =>
-            this.players.find(player => player.id === playerId)))
+        quality: matchup.quality,
+        teams: matchup.teams.map((team, index) => ({
+          score: matchup.win_probability[index],
+          players: team,
+        }))
       }))
+      console.log(this.matchups)
     },
   },
   computed: {
@@ -121,6 +118,9 @@ export default {
         rating: player.rating,
       }))
     },
+    ...mapGetters({
+      getPlayerById: 'getPlayerById',
+    }),
     ...mapState({
       players: (state) => state.players,
     })

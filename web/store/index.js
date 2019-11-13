@@ -40,17 +40,6 @@ export const mutations = {
   },
 }
 
-/**
- * Replace references by objects
- */
-function joinMatchResults(state) {
-  return (matchResults) => ({
-    ...matchResults,
-    home_players: matchResults.home_players.map(fId => state.players.find(({ id }) => id == fId)),
-    away_players: matchResults.away_players.map(fId => state.players.find(({ id }) => id == fId)),
-  })
-}
-
 export const actions = {
   async nuxtServerInit({ dispatch }) {
     await dispatch('loadPlayers')
@@ -61,7 +50,7 @@ export const actions = {
   },
   async loadMatchResults({ state, commit }) {
     const data = await this.$axios.$get('/match-results/')
-    const matchResults = data.results.map(joinMatchResults(state))
+    const matchResults = data.results
     commit('setMatchResults', matchResults)
   },
   async loadPlayers({ commit }) {
@@ -78,13 +67,18 @@ export const actions = {
       away_positions: set.awayPositions,
     }))
     const createdMatchResult = await this.$axios.$post('/match-results/', {
-      home_players: matchResult.homePlayers,
-      away_players: matchResult.awayPlayers,
-      home_score: matchResult.homeScore,
-      away_score: matchResult.awayScore,
+      teams: [{
+        id: 'home',
+        score: matchResult.homeScore,
+        players: matchResult.homePlayers,
+      }, {
+        id: 'away',
+        score: matchResult.awayScore,
+        players: matchResult.awayPlayers,
+      }],
       sets,
     })
-    commit('addMatchResult', joinMatchResults(state)(createdMatchResult))
+    commit('addMatchResult')
     await dispatch('loadPlayers')
   },
   async registerUser({ dispatch, commit }, user) {

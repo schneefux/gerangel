@@ -52,29 +52,31 @@ class MatchSerializer(serializers.ModelSerializer):
 
 class MatchResultSerializer(serializers.BaseSerializer):
   def to_internal_value(self, data):
-    home_score = data.get("home_score")
-    away_score = data.get("away_score")
-    home_players = data.get("home_players")
-    away_players = data.get("away_players")
-    sets = data.get("sets")
-    # TODO add set positions
+    teams = data.get("teams")
+    if len(teams) != 2:
+      raise serializers.ValidationError({
+        "teams[]": "Must be of length 2."
+      })
+    for team in teams:
+      team_id = team.get("id")
+      score = team.get("score")
+      players = team.get("players")
 
-    if home_score is None:
-      raise serializers.ValidationError({
-        "home_score": "This field is required."
-      })
-    if away_score is None:
-      raise serializers.ValidationError({
-        "away_score": "This field is required."
-      })
-    if home_players is None:
-      raise serializers.ValidationError({
-        "home_players": "This field is required."
-      })
-    if away_players is None:
-      raise serializers.ValidationError({
-        "away_players": "This field is required."
-      })
+      if team_id is None:
+        raise serializers.ValidationError({
+          "teams[].team_id": "This field is required."
+        })
+      if score is None:
+        raise serializers.ValidationError({
+          "teams[" + team_id + "].score": "This field is required."
+        })
+      if players is None:
+        raise serializers.ValidationError({
+          "teams[" + team_id + "].players": "This field is required."
+        })
+    sets = data.get("sets")
+
+    # TODO add set positions
     if sets is None:
       sets = []
     for s in sets:
@@ -104,22 +106,25 @@ class MatchResultSerializer(serializers.BaseSerializer):
         })
 
     return {
-      "home_score": home_score,
-      "away_score": away_score,
-      "home_players": home_players,
-      "away_players": away_players,
+      "teams": teams,
       "sets": sets,
     }
 
   def to_representation(self, instance):
-    home_team, away_team = MatchTeam.objects.filter(match=instance)
-    home_players = MatchPlayer.objects.filter(team=home_team)\
+    teams = MatchTeam.objects.filter(match=instance)
+    data_teams = [{
+      "id": team.id,
+      "score": team.score,
+      "players": team.matchplayer_set.values_list("player__id", flat=True),
+    } for team in teams]
+
+    home_players = MatchPlayer.objects.filter(team=teams[0])\
       .order_by("id")
-    away_players = MatchPlayer.objects.filter(team=away_team)\
+    away_players = MatchPlayer.objects.filter(team=teams[1])\
       .order_by("id")
-    home_sets = MatchSetTeam.objects.filter(match_team=home_team)\
+    home_sets = MatchSetTeam.objects.filter(match_team=teams[0])\
       .order_by("match_set__index")
-    away_sets = MatchSetTeam.objects.filter(match_team=away_team)\
+    away_sets = MatchSetTeam.objects.filter(match_team=teams[1])\
       .order_by("match_set__index")
     set_home_players = MatchSetPlayer.objects.filter(match_player__in=home_players)\
       .order_by("match_player__player__id")
@@ -134,14 +139,12 @@ class MatchResultSerializer(serializers.BaseSerializer):
       "home_positions": [smp.position for smp in set_home_players],
       "away_positions": [smp.position for smp in set_away_players],
     } for home_set, away_set in zip(home_sets, away_sets)]
+
     return {
       "id": instance.id,
       "created": instance.created,
       "owner": instance.owner.id,
-      "home_players": [mp.player_id for mp in home_players],
-      "away_players": [mp.player_id for mp in away_players],
-      "home_score": home_team.score,
-      "away_score": away_team.score,
+      "teams": data_teams,
       "sets": sets,
     }
 
@@ -149,8 +152,9 @@ class MatchResultSerializer(serializers.BaseSerializer):
     match = Match(owner=data["owner"])
     match.save()
 
-    home_score = data["home_score"]
-    away_score = data["away_score"]
+    data_home_team, data_away_team = data["teams"]
+    home_score = data_home_team["score"]
+    away_score = data_away_team["score"]
 
     home_team = MatchTeam(index=0, score=home_score, match=match)
     home_team.save()
@@ -158,8 +162,8 @@ class MatchResultSerializer(serializers.BaseSerializer):
     away_team.save()
 
     # load players from database
-    home_players = data["home_players"]
-    away_players = data["away_players"]
+    home_players = data_home_team["players"]
+    away_players = data_away_team["players"]
 
     home_players = [Player.objects.get(id=p) for p in home_players]
     away_players = [Player.objects.get(id=p) for p in away_players]

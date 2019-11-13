@@ -3,26 +3,26 @@
     <div class="matchresult">
       <div class="matchresult__team matchresult__team--left">
         <div
-          v-for="player in leftPlayers"
+          v-for="player in homePlayers"
           :key="player.id"
         >
           {{ player.user.username }}
         </div>
         <v-icon
-          v-if="leftScore > rightScore"
+          v-if="homeScore > awayScore"
           class="matchresult__crown matchresult__crown--left"
         >mdi-crown</v-icon>
       </div>
       <div class="matchresult__meta">
         <slot name="center">
           <div class="matchresult__score matchresult__score--left">
-            {{ leftScore }}
+            {{ homeScore }}
           </div>
           <div class="matchresult__score matchresult__score--center">
             :
           </div>
           <div class="matchresult__score matchresult__score--right">
-            {{ rightScore }}
+            {{ awayScore }}
           </div>
           <div class="matchresult__date">
             {{ new Date(date).toLocaleDateString() }}
@@ -31,13 +31,13 @@
       </div>
       <div class="matchresult__team matchresult__team--right">
         <div
-          v-for="player in rightPlayers"
+          v-for="player in awayPlayers"
           :key="player.id"
         >
           {{ player.user.username }}
         </div>
         <v-icon
-          v-if="leftScore < rightScore"
+          v-if="homeScore < awayScore"
           class="matchresult__crown matchresult__crown--right"
         >mdi-crown</v-icon>
       </div>
@@ -46,28 +46,35 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   props: {
-    leftPlayers: {
+    teams: {
       type: Array,
-      required: true,
-    },
-    rightPlayers: {
-      type: Array,
-      required: true,
-    },
-    leftScore: {
-      type: Number,
-      required: true,
-    },
-    rightScore: {
-      type: Number,
       required: true,
     },
     date: {
       type: String,
       required: false,
     },
+  },
+  computed: {
+    homeScore() {
+      return this.teams[0].score
+    },
+    awayScore() {
+      return this.teams[1].score
+    },
+    homePlayers() {
+      return this.teams[0].players.map(this.getPlayerById)
+    },
+    awayPlayers() {
+      return this.teams[1].players.map(this.getPlayerById)
+    },
+    ...mapGetters({
+      getPlayerById: 'getPlayerById',
+    })
   },
 }
 </script>

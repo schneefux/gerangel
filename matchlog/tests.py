@@ -17,21 +17,31 @@ class MatchTests(APITestCase):
   def _create_match(self):
     url = reverse("matches-results-list")
     data = {
-      "home_score": 3,
-      "away_score": 2,
-      "home_players": [1, 2],
-      "away_players": [3, 4],
+      "teams": [{
+        "id": "home",
+        "score": 3,
+        "players": [1, 2],
+      }, {
+        "id": "away",
+        "score": 2,
+        "players": [3, 4],
+      }],
     }
     return self.client.post(url, data, format="json")
 
   def _create_match_with_sets(self):
     url = reverse("matches-results-list")
-    # TODO normalize data model
     data = {
-      "home_score": 2,
-      "away_score": 0,
-      "home_players": [1, 2],
-      "away_players": [3, 4],
+      "teams": [{
+        "id": "home",
+        "score": 2,
+        "players": [1, 2],
+      }, {
+        "id": "away",
+        "score": 0,
+        "players": [3, 4],
+      }],
+      # TODO normalize data model
       "sets": [{
         "home_color": "red",
         "away_color": "blue",

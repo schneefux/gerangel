@@ -22,10 +22,7 @@
         <v-layout justify-center>
           <v-flex xs12 sm6 md4 lg3>
             <match-result-card
-              :left-players="matchResult.home_players"
-              :right-players="matchResult.away_players"
-              :left-score="matchResult.home_score"
-              :right-score="matchResult.away_score"
+              :teams="matchResult.teams"
               :date="matchResult.created" />
           </v-flex>
         </v-layout>
