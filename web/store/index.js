@@ -74,6 +74,8 @@ export const actions = {
       away_points: set.awayPoints,
       home_color: set.homeColor,
       away_color: set.awayColor,
+      home_positions: set.homePositions,
+      away_positions: set.awayPositions,
     }))
     const createdMatchResult = await this.$axios.$post('/match-results/', {
       home_players: matchResult.homePlayers,

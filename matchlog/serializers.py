@@ -4,7 +4,7 @@ from trueskill import TrueSkill
 import itertools
 import math
 
-from matchlog.models import Match, Player, MatchPlayer, MatchTeam, MatchTeamSet
+from matchlog.models import Match, Player, MatchPlayer, MatchTeam, MatchSet, MatchSetTeam, MatchSetPlayer
 
 
 def win_probability(env, team1, team2):
@@ -57,6 +57,7 @@ class MatchResultSerializer(serializers.BaseSerializer):
     home_players = data.get("home_players")
     away_players = data.get("away_players")
     sets = data.get("sets")
+    # TODO add set positions
 
     if home_score is None:
       raise serializers.ValidationError({
@@ -93,6 +94,14 @@ class MatchResultSerializer(serializers.BaseSerializer):
         raise serializers.ValidationError({
           "sets[].away_points": "This field is required."
         })
+      if not "home_positions" in s:
+        raise serializers.ValidationError({
+          "sets[].home_positions": "This field is required."
+        })
+      if not "away_positions" in s:
+        raise serializers.ValidationError({
+          "sets[].away_positions": "This field is required."
+        })
 
     return {
       "home_score": home_score,
@@ -104,15 +113,26 @@ class MatchResultSerializer(serializers.BaseSerializer):
 
   def to_representation(self, instance):
     home_team, away_team = MatchTeam.objects.filter(match=instance)
-    home_players = MatchPlayer.objects.filter(team=home_team)
-    away_players = MatchPlayer.objects.filter(team=away_team)
-    home_sets = MatchTeamSet.objects.filter(match_team=home_team).order_by("index")
-    away_sets = MatchTeamSet.objects.filter(match_team=away_team).order_by("index")
+    home_players = MatchPlayer.objects.filter(team=home_team)\
+      .order_by("id")
+    away_players = MatchPlayer.objects.filter(team=away_team)\
+      .order_by("id")
+    home_sets = MatchSetTeam.objects.filter(match_team=home_team)\
+      .order_by("match_set__index")
+    away_sets = MatchSetTeam.objects.filter(match_team=away_team)\
+      .order_by("match_set__index")
+    set_home_players = MatchSetPlayer.objects.filter(match_player__in=home_players)\
+      .order_by("match_player__player__id")
+    set_away_players = MatchSetPlayer.objects.filter(match_player__in=away_players)\
+      .order_by("match_player__player__id")
     sets = [{
       "home_color": home_set.color,
       "away_color": away_set.color,
       "home_points": home_set.points,
       "away_points": away_set.points,
+      # order is important - same as "home_players"
+      "home_positions": [smp.position for smp in set_home_players],
+      "away_positions": [smp.position for smp in set_away_players],
     } for home_set, away_set in zip(home_sets, away_sets)]
     return {
       "id": instance.id,
@@ -137,15 +157,6 @@ class MatchResultSerializer(serializers.BaseSerializer):
     away_team = MatchTeam(index=1, score=away_score, match=match)
     away_team.save()
 
-    sets = data["sets"]
-    for index, s in enumerate(sets):
-      home_team_set = MatchTeamSet(match_team=home_team, index=index,
-        points=s["home_points"], color=s["home_color"])
-      away_team_set = MatchTeamSet(match_team=away_team, index=index,
-        points=s["away_points"], color=s["away_color"])
-      home_team_set.save()
-      away_team_set.save()
-
     # load players from database
     home_players = data["home_players"]
     away_players = data["away_players"]
@@ -165,6 +176,30 @@ class MatchResultSerializer(serializers.BaseSerializer):
       for p in away_players]
     for p in away_players:
       p.save()
+
+    sets = data["sets"]
+    for index, s in enumerate(sets):
+      match_set = MatchSet(match=match, index=index)
+      match_set.save()
+
+      home_team_set = MatchSetTeam(match_set=match_set, match_team=home_team,
+        points=s["home_points"], color=s["home_color"])
+      away_team_set = MatchSetTeam(match_set=match_set, match_team=away_team,
+        points=s["away_points"], color=s["away_color"])
+      home_team_set.save()
+      away_team_set.save()
+
+      home_positions = s["home_positions"]
+      for index, match_player in enumerate(home_players):
+        home_set_player = MatchSetPlayer(match_set=match_set,
+          match_player=match_player, position=home_positions[index])
+        home_set_player.save()
+
+      away_positions = s["away_positions"]
+      for index, match_player in enumerate(away_players):
+        away_set_player = MatchSetPlayer(match_set=match_set,
+          match_player=match_player, position=away_positions[index])
+        away_set_player.save()
 
     # calculate TrueSkill ratings
     env = TrueSkill()

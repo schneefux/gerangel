@@ -1,7 +1,7 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from matchlog.models import Match, Player, User, MatchTeamSet
+from matchlog.models import Match, Player, User, MatchSetTeam
 
 
 class MatchTests(APITestCase):
@@ -26,6 +26,7 @@ class MatchTests(APITestCase):
 
   def _create_match_with_sets(self):
     url = reverse("matches-results-list")
+    # TODO normalize data model
     data = {
       "home_score": 2,
       "away_score": 0,
@@ -36,11 +37,15 @@ class MatchTests(APITestCase):
         "away_color": "blue",
         "home_points": 8,
         "away_points": 1,
+        "home_positions": ["attack", "defense"],
+        "away_positions": ["attack", "defense"],
       }, {
         "home_color": "blue",
         "away_color": "red",
         "home_points": 1,
         "away_points": 8,
+        "home_positions": ["defense", "attack"],
+        "away_positions": ["defense", "attack"],
       }]
     }
     return self.client.post(url, data, format="json")
@@ -171,7 +176,7 @@ class MatchTests(APITestCase):
     response = self._create_match_with_sets()
 
     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    self.assertEqual(MatchTeamSet.objects.count(), 4)
+    self.assertEqual(MatchSetTeam.objects.count(), 4)
     self.assertEqual(len(response.data["sets"]), 2)
 
   def test_should_aggregate_player_stats(self):

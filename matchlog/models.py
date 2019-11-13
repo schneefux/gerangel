@@ -51,8 +51,20 @@ class MatchPlayer(Rating):
   team = models.ForeignKey(MatchTeam, on_delete=models.CASCADE)
 
 
-class MatchTeamSet(models.Model):
-  match_team = models.ForeignKey(MatchTeam, on_delete=models.CASCADE)
+class MatchSet(models.Model):
+  created = models.DateTimeField(auto_now_add=True)
+  match = models.ForeignKey(Match, on_delete=models.CASCADE)
   index = models.IntegerField()
+
+
+class MatchSetTeam(models.Model):
+  match_set = models.ForeignKey(MatchSet, on_delete=models.CASCADE)
+  match_team = models.ForeignKey(MatchTeam, on_delete=models.CASCADE)
   points = models.IntegerField()
   color = models.CharField(max_length=255)
+
+
+class MatchSetPlayer(models.Model):
+  match_set = models.ForeignKey(MatchSet, on_delete=models.CASCADE)
+  match_player = models.ForeignKey(MatchPlayer, on_delete=models.CASCADE)
+  position = models.CharField(max_length=255)

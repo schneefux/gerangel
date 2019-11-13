@@ -47,9 +47,9 @@ class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
     return Response({
       "count": player.matchplayer_set.count(),
       "wins": len([t for t in matchteams if t.winner]),
-      "sets": sum([t.matchteamset_set.count() for t in matchteams]),
+      "sets": sum([t.matchsetteam_set.count() for t in matchteams]),
       "points": sum([
-        t.matchteamset_set.aggregate(points=Sum("points"))["points"] or 0
+        t.matchsetteam_set.aggregate(points=Sum("points"))["points"] or 0
         for t in matchteams
       ]),
     })

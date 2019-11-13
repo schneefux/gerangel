@@ -11,9 +11,10 @@
           <v-layout row justify-space-between>
             <v-flex xs8>
               <v-autocomplete
-                v-model="homePlayers"
+                v-model="homePlayerIds"
                 :items="players"
                 :rules="[requiredArray, differentFromAwayPlayers]"
+                :disabled="sets.length > 0"
                 item-text="user.username"
                 item-value="id"
                 label="Spieler"
@@ -42,9 +43,10 @@
           <v-layout row justify-space-between>
             <v-flex xs8>
               <v-autocomplete
-                v-model="awayPlayers"
+                v-model="awayPlayerIds"
                 :items="players"
                 :rules="[requiredArray, differentFromHomePlayers]"
+                :disabled="sets.length > 0"
                 item-text="user.username"
                 item-value="id"
                 label="Spieler"
@@ -83,6 +85,7 @@
                 <v-flex xs7>
                   <v-radio-group
                     v-model="set.homeColor"
+                    :rules="[required]"
                     row
                   >
                     <v-radio
@@ -111,6 +114,7 @@
                 <v-flex xs7>
                   <v-radio-group
                     v-model="set.awayColor"
+                    :rules="[required]"
                     row
                   >
                     <v-radio
@@ -133,6 +137,60 @@
                     required
                   ></v-text-field>
                 </v-flex>
+                <v-flex
+                  v-show="homePlayerIds.length > 1"
+                  v-for="(player, index) in homePlayers"
+                  :key="player.id"
+                  xs6
+                >
+                  <span>
+                    Position von {{ player.user.username }}
+                  </span>
+                  <v-radio-group
+                    v-model="set.homePositions[index]"
+                    :rules="[required]"
+                  >
+                    <v-radio
+                      label="Flexibel"
+                      value="flexible"
+                    />
+                    <v-radio
+                      label="Angriff"
+                      value="attack"
+                    />
+                    <v-radio
+                      label="Verteidigung"
+                      value="defense"
+                    />
+                  </v-radio-group>
+                </v-flex>
+                <v-flex
+                  v-show="awayPlayerIds.length > 1"
+                  v-for="(player, index) in awayPlayers"
+                  :key="player.id"
+                  xs6
+                >
+                  <span>
+                    Position von {{ player.user.username }}
+                  </span>
+                  <v-radio-group
+                    v-model="set.awayPositions[index]"
+                    :rules="[required]"
+                  >
+                    <v-radio
+                      label="Flexibel"
+                      value="flexible"
+                    />
+                    <v-radio
+                      label="Angriff"
+                      value="attack"
+                    />
+                    <v-radio
+                      label="Verteidigung"
+                      value="defense"
+                    />
+                  </v-radio-group>
+                </v-flex>
               </v-layout>
               <v-btn
                 fab
@@ -149,8 +207,9 @@
           </v-card>
           <div class="mt-3">
             <v-btn
-              round
+              :disabled="homePlayerIds.length == 0 || awayPlayerIds.length == 0"
               @click="addSet()"
+              round
             >
               <v-icon left>mdi-plus</v-icon>
               neuer satz
@@ -176,13 +235,13 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
   data() {
     return {
-      homePlayers: [],
-      awayPlayers: [],
+      homePlayerIds: [],
+      awayPlayerIds: [],
       homeScore: undefined,
       awayScore: undefined,
       valid: true,
@@ -196,6 +255,8 @@ export default {
         awayPoints: 0,
         homeColor: '',
         awayColor: '',
+        homePositions: this.homePlayerIds.map(p => 'flexible'),
+        awayPositions: this.awayPlayerIds.map(p => 'flexible'),
       })
     },
     removeSet(index) {
@@ -207,8 +268,8 @@ export default {
       }
 
       await this.addMatchResult({
-        homePlayers: this.homePlayers,
-        awayPlayers: this.awayPlayers,
+        homePlayers: this.homePlayerIds,
+        awayPlayers: this.awayPlayerIds,
         homeScore: this.homeScore,
         awayScore: this.awayScore,
         sets: this.sets,
@@ -239,19 +300,41 @@ export default {
           if (set.awayColor == 'blue') {
             set.homeColor = 'red'
           }
+          if (this.homePlayerIds.length == 2) {
+            if (set.homePositions[0] == 'attack') {
+              set.homePositions[1] = 'defense'
+            }
+            if (set.homePositions[0] == 'defense') {
+              set.homePositions[1] = 'attack'
+            }
+          }
+          if (this.awayPlayerIds.length == 2) {
+            if (set.awayPositions[0] == 'attack') {
+              set.awayPositions[1] = 'defense'
+            }
+            if (set.awayPositions[0] == 'defense') {
+              set.awayPositions[1] = 'attack'
+            }
+          }
         })
       },
     },
   },
   computed: {
+    homePlayers() {
+      return this.homePlayerIds.map(this.getPlayerById)
+    },
+    awayPlayers() {
+      return this.awayPlayerIds.map(this.getPlayerById)
+    },
     differentFromAwayPlayers() {
-      return (players) => !players.some((player) => this.awayPlayers.includes(player)) || 'Darf nicht in mehreren Teams auftauchen'
+      return (ids) => !ids.some(id => this.awayPlayerIds.includes(id)) || 'Darf nicht in mehreren Teams auftauchen'
     },
     differentFromHomePlayers() {
-      return (players) => !players.some((player) => this.homePlayers.includes(player)) || 'Darf nicht in mehreren Teams auftauchen'
+      return (ids) => !ids.some(id => this.homePlayerIds.includes(id)) || 'Darf nicht in mehreren Teams auftauchen'
     },
     requiredArray() {
-      return (players) => players.length > 0 || 'Darf nicht leer sein'
+      return (ids) => ids.length > 0 || 'Darf nicht leer sein'
     },
     required() {
       return (input) => (input !== undefined && input !== '') || 'Pflichtfeld'
@@ -262,6 +345,9 @@ export default {
         (input) => input >= 0 || 'Darf nicht negativ sein',
       ]
     },
+    ...mapGetters({
+      getPlayerById: 'getPlayerById',
+    }),
     ...mapState({
       players: (state) => state.players,
     })
