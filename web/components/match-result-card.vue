@@ -28,6 +28,7 @@
             {{ new Date(date).toLocaleDateString() }}
           </div>
         </slot>
+        <slot name="bottom" />
       </div>
       <div class="matchresult__team matchresult__team--right">
         <div
