@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-toolbar app>
+    <v-toolbar app color="secondary lighten-1">
       <v-toolbar-side-icon @click="drawerOpen = !drawerOpen" />
       <v-toolbar-title>
         Gerangel [ɡəˈʁaŋl̩]
