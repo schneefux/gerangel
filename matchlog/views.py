@@ -3,10 +3,9 @@ from django.db.models import Sum
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from trueskill import TrueSkill
 
 from matchlog.models import Match, MatchPlayer, Player
-from matchlog.serializers import UserSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, MatchResultSerializer, MatchupSerializer
+from matchlog.serializers import UserSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, MatchResultSerializer
 from matchlog.permissions import IsHistoricallySafe
 
 
@@ -27,16 +26,6 @@ class PlayerViewSet(viewsets.ReadOnlyModelViewSet):
     if len(player_ids) > 0:
       queryset = queryset.filter(id__in=player_ids)
     return queryset
-
-  @action(detail=False)
-  def matchmake(self, request):
-    queryset = self.get_queryset()
-    # paginate matchups, not players!
-    # so all players are part of the matchmaking pool
-    # (this consumes a lot of resources regardless of page size)
-    serializer = MatchupSerializer(queryset)
-    page = self.paginate_queryset(serializer.data)
-    return self.get_paginated_response(page)
 
   @action(detail=True)
   def stats(self, request, pk=None):

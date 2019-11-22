@@ -144,20 +144,6 @@ class MatchTests(APITestCase):
     self.assertEqual(response.status_code, status.HTTP_200_OK)
     self.assertEqual(len(response.data["results"]), 1)
 
-  def test_should_matchmake(self):
-    # enter a match so that there is a variety of different ratings
-    self._login()
-    self._create_match()
-    url = reverse("player-list")
-
-    response = self.client.get(url + "matchmake/?id=1&id=2&id=3&id=4")
-
-    self.assertEqual(response.status_code, status.HTTP_200_OK)
-    data = response.data["results"]
-    self.assertEqual(len(data), 21)
-    self.assertGreater(data[0]["quality"], data[-1]["quality"])
-    self.assertGreater(data[0]["win_probability"][0], data[0]["win_probability"][1])
-
   def test_should_list_match_players(self):
     self._login()
     self._create_match()

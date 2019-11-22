@@ -95,7 +95,7 @@ export default {
       const query = this.selectedPlayers
         .map((player) => 'id=' + player.id)
         .join('&')
-      const response = await this.$axios.$get('/players/matchmake/?' + query)
+      const response = await this.$axios.$get('/matchmake/?' + query)
       const matchups = response.results
       this.matchups = matchups.map(matchup => ({
         quality: matchup.quality,
@@ -104,7 +104,6 @@ export default {
           players: team,
         }))
       }))
-      console.log(this.matchups)
     },
   },
   computed: {
