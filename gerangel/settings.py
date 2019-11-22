@@ -25,6 +25,8 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'matchlog.apps.MatchlogConfig',
+    'matchmake.apps.MatchmakeConfig',
+    'event.apps.EventConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

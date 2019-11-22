@@ -3,6 +3,7 @@ from rest_framework import routers
 from rest_framework.authtoken.views import obtain_auth_token
 from matchlog import views as matchlog_views
 from matchmake import views as matchmake_views
+from event import views as event_views
 
 router = routers.DefaultRouter()
 router.register(r'users', matchlog_views.UserViewSet, 'user')
@@ -11,6 +12,8 @@ router.register(r'matches', matchlog_views.MatchViewSet, 'matches')
 router.register(r'match-results', matchlog_views.MatchResultViewSet, 'matches-results')
 router.register(r'match-players', matchlog_views.MatchPlayerViewSet, 'match-players')
 router.register(r'matchmake', matchmake_views.MatchmakeViewSet, 'matchmake')
+router.register(r'events', event_views.EventViewSet, 'events')
+router.register(r'log', event_views.LogViewSet, 'log')
 
 urlpatterns = [
     path('', include(router.urls)),
