@@ -78,118 +78,117 @@
             class="mt-4"
           >
             <v-container grid-list-lg fluid>
-              <v-layout row wrap justify-space-between>
-                <v-flex xs2 class="my-auto">
-                  <span>Heim</span>
+              <v-layout row wrap justify-center>
+                <v-flex xs12 md6 lg4>
+                  <v-layout row wrap>
+                    <v-flex xs3 class="my-auto">
+                      <span>Heim</span>
+                    </v-flex>
+                    <v-flex xs9>
+                      <v-radio-group
+                        v-model="set.homeColor"
+                        :rules="[required]"
+                        row
+                      >
+                        <v-radio
+                          label="rot"
+                          color="red"
+                          value="red"
+                        />
+                        <v-radio
+                          label="blau"
+                          color="blue"
+                          value="blue"
+                        />
+                      </v-radio-group>
+                    </v-flex>
+                    <v-flex
+                      v-show="homePlayerIds.length > 1"
+                      v-for="(player, index) in homePlayers"
+                      :key="player.id"
+                      xs6
+                    >
+                      <span>
+                        Position von {{ player.user.username }}
+                      </span>
+                      <v-radio-group
+                        v-model="set.homePositions[index]"
+                        :rules="[required]"
+                      >
+                        <v-radio
+                          label="Flexibel"
+                          value="flexible"
+                        />
+                        <v-radio
+                          label="Angriff"
+                          value="attack"
+                        />
+                        <v-radio
+                          label="Verteidigung"
+                          value="defense"
+                        />
+                      </v-radio-group>
+                    </v-flex>
+                    <v-flex xs12 class="overflow-x-auto">
+                      <points-picker v-model="set.homePoints" />
+                    </v-flex>
+                  </v-layout>
                 </v-flex>
-                <v-flex xs7>
-                  <v-radio-group
-                    v-model="set.homeColor"
-                    :rules="[required]"
-                    row
-                  >
-                    <v-radio
-                      label="rot"
-                      color="red"
-                      value="red"
-                    />
-                    <v-radio
-                      label="blau"
-                      color="blue"
-                      value="blue"
-                    />
-                  </v-radio-group>
-                </v-flex>
-                <v-flex xs3>
-                  <v-text-field
-                    v-model="set.homePoints"
-                    label="Tore"
-                    type="number"
-                    required
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs2 class="my-auto">
-                  <span>Gast</span>
-                </v-flex>
-                <v-flex xs7>
-                  <v-radio-group
-                    v-model="set.awayColor"
-                    :rules="[required]"
-                    row
-                  >
-                    <v-radio
-                      label="rot"
-                      color="red"
-                      value="red"
-                    />
-                    <v-radio
-                      label="blau"
-                      color="blue"
-                      value="blue"
-                    />
-                  </v-radio-group>
-                </v-flex>
-                <v-flex xs3>
-                  <v-text-field
-                    v-model="set.awayPoints"
-                    label="Tore"
-                    type="number"
-                    required
-                  ></v-text-field>
-                </v-flex>
-                <v-flex
-                  v-show="homePlayerIds.length > 1"
-                  v-for="(player, index) in homePlayers"
-                  :key="player.id"
-                  xs6
-                >
-                  <span>
-                    Position von {{ player.user.username }}
-                  </span>
-                  <v-radio-group
-                    v-model="set.homePositions[index]"
-                    :rules="[required]"
-                  >
-                    <v-radio
-                      label="Flexibel"
-                      value="flexible"
-                    />
-                    <v-radio
-                      label="Angriff"
-                      value="attack"
-                    />
-                    <v-radio
-                      label="Verteidigung"
-                      value="defense"
-                    />
-                  </v-radio-group>
-                </v-flex>
-                <v-flex
-                  v-show="awayPlayerIds.length > 1"
-                  v-for="(player, index) in awayPlayers"
-                  :key="player.id"
-                  xs6
-                >
-                  <span>
-                    Position von {{ player.user.username }}
-                  </span>
-                  <v-radio-group
-                    v-model="set.awayPositions[index]"
-                    :rules="[required]"
-                  >
-                    <v-radio
-                      label="Flexibel"
-                      value="flexible"
-                    />
-                    <v-radio
-                      label="Angriff"
-                      value="attack"
-                    />
-                    <v-radio
-                      label="Verteidigung"
-                      value="defense"
-                    />
-                  </v-radio-group>
+
+                <v-flex xs12 md6 lg4>
+                  <v-layout row wrap>
+                    <v-flex xs3 class="my-auto">
+                      <span>Gast</span>
+                    </v-flex>
+                    <v-flex xs9>
+                      <v-radio-group
+                        v-model="set.awayColor"
+                        :rules="[required]"
+                        row
+                      >
+                        <v-radio
+                          label="rot"
+                          color="red"
+                          value="red"
+                        />
+                        <v-radio
+                          label="blau"
+                          color="blue"
+                          value="blue"
+                        />
+                      </v-radio-group>
+                    </v-flex>
+                    <v-flex
+                      v-show="awayPlayerIds.length > 1"
+                      v-for="(player, index) in awayPlayers"
+                      :key="player.id"
+                      xs6
+                    >
+                      <span>
+                        Position von {{ player.user.username }}
+                      </span>
+                      <v-radio-group
+                        v-model="set.awayPositions[index]"
+                        :rules="[required]"
+                      >
+                        <v-radio
+                          label="Flexibel"
+                          value="flexible"
+                        />
+                        <v-radio
+                          label="Angriff"
+                          value="attack"
+                        />
+                        <v-radio
+                          label="Verteidigung"
+                          value="defense"
+                        />
+                      </v-radio-group>
+                    </v-flex>
+                    <v-flex xs12 class="overflow-x-auto">
+                      <points-picker v-model="set.awayPoints" />
+                    </v-flex>
+                  </v-layout>
                 </v-flex>
               </v-layout>
               <v-btn
@@ -236,8 +235,12 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
+import PointsPicker from '~/components/points-picker'
 
 export default {
+  components: {
+    PointsPicker,
+  },
   data() {
     return {
       homePlayerIds: [],
@@ -359,5 +362,9 @@ export default {
 .my-auto {
   margin-top: auto;
   margin-bottom: auto;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
 }
 </style>
