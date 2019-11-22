@@ -78,7 +78,7 @@ export const actions = {
       }],
       sets,
     })
-    commit('addMatchResult')
+    commit('addMatchResult', createdMatchResult)
     await dispatch('loadPlayers')
   },
   async registerUser({ dispatch, commit }, user) {
