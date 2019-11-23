@@ -71,6 +71,17 @@
         </v-flex>
 
         <v-flex xs12>
+          <v-btn
+            :disabled="homePlayerIds.length == 0 || awayPlayerIds.length == 0"
+            @click="startLiveRecording()"
+            round
+          >
+            <v-icon left>mdi-play</v-icon>
+            live
+          </v-btn>
+        </v-flex>
+
+        <v-flex xs12>
           <h6 class="subheading">Sätze (optional)</h6>
           <v-card
             v-for="(set, index) in sets"
@@ -279,6 +290,12 @@ export default {
       })
 
       this.$router.push('/')
+    },
+    async startLiveRecording() {
+      const createdEvent = await this.$axios.$post('/events/', {})
+      const eventId = createdEvent.id
+      const playerIds = [].concat(this.homePlayerIds, this.awayPlayerIds)
+      this.$router.push('/live/' + eventId + '?players=' + playerIds.join(','))
     },
     ...mapActions({
       addMatchResult: 'addMatchResult',

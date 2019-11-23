@@ -36,6 +36,32 @@ class EventTests(APITestCase):
 
     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+  def test_should_filter_logs_by_eventid(self):
+    Log.objects.create(
+      event=self._event1, owner=self._test1, action="change_color",
+      player=Player.objects.get(pk=1), payload="red")
+    url = reverse("log-list")
+
+    response = self.client.get(url + "?event.id=" + str(self._event1.id))
+
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(len(response.data["results"]), 1)
+
+  def test_should_filter_logs_by_id(self):
+    log1 = Log.objects.create(
+      event=self._event1, owner=self._test1, action="change_color",
+      player=Player.objects.get(pk=1), payload="red")
+    log2 = Log.objects.create(
+      event=self._event1, owner=self._test1, action="change_color",
+      player=Player.objects.get(pk=1), payload="red")
+    url = reverse("log-list")
+
+    response = self.client.get(url + "?id_gt=" + str(log1.id))
+    # TODO use timestamps instead of ids
+
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(len(response.data["results"]), 1)
+
   def test_should_convert_to_matchresult(self):
     url = reverse("events-match-result", args=(self._event1.id,))
     create_event = lambda action, player, payload = "": Log.objects.create(
@@ -51,14 +77,17 @@ class EventTests(APITestCase):
     create_event(action="change_position", player=Pl(2), payload="defense")
     create_event(action="change_position", player=Pl(3), payload="attack")
     create_event(action="change_position", player=Pl(4), payload="defense")
+    create_event(action="start_set", player=Pl(1))
     create_event(action="score_goal", player=Pl(1))
     create_event(action="score_goal", player=Pl(1))
     create_event(action="score_goal", player=Pl(3))
     create_event(action="close_set", player=Pl(1))
+    create_event(action="start_set", player=Pl(1))
     create_event(action="score_goal", player=Pl(1))
     create_event(action="score_goal", player=Pl(3))
     create_event(action="score_goal", player=Pl(3))
     create_event(action="close_set", player=Pl(1))
+    create_event(action="start_set", player=Pl(1))
     create_event(action="score_goal", player=Pl(1))
     create_event(action="score_goal", player=Pl(1))
     create_event(action="score_goal", player=Pl(3))
@@ -73,3 +102,76 @@ class EventTests(APITestCase):
     self.assertIsNotNone(match)
     self.assertNotEqual(response.data["teams"][0]["score"], response.data["teams"][1]["score"])
     # TODO test the other properties
+
+  def test_should_create_matchresult_if_team_wins_no_sets(self):
+    url = reverse("events-match-result", args=(self._event1.id,))
+    create_event = lambda action, player, payload = "": Log.objects.create(
+      event=self._event1, owner=self._test1, action=action,
+      player=player, payload=payload)
+    Pl = lambda pk: Player.objects.get(pk=pk)
+
+    create_event(action="change_color", player=Pl(1), payload="red")
+    create_event(action="change_color", player=Pl(2), payload="blue")
+    create_event(action="change_position", player=Pl(1), payload="flex")
+    create_event(action="change_position", player=Pl(2), payload="flex")
+    create_event(action="start_set", player=Pl(1))
+    create_event(action="score_goal", player=Pl(1))
+    create_event(action="score_goal", player=Pl(1))
+    create_event(action="score_goal", player=Pl(2))
+    create_event(action="close_set", player=Pl(1))
+
+    response = self.client.get(url)
+
+    # should not raise
+    match = response.data
+    match["owner"] = self._test1
+    match = MatchResultSerializer().create(data=match)
+    self.assertIsNotNone(match)
+    self.assertNotEqual(response.data["teams"][0]["score"], response.data["teams"][1]["score"])
+    # TODO test the other properties
+
+  def test_should_create_matchresult_if_set_just_started(self):
+    url = reverse("events-match-result", args=(self._event1.id,))
+    create_event = lambda action, player, payload = "": Log.objects.create(
+      event=self._event1, owner=self._test1, action=action,
+      player=player, payload=payload)
+    Pl = lambda pk: Player.objects.get(pk=pk)
+
+    create_event(action="change_color", player=Pl(1), payload="red")
+    create_event(action="change_color", player=Pl(2), payload="blue")
+    create_event(action="change_position", player=Pl(1), payload="flex")
+    create_event(action="change_position", player=Pl(2), payload="flex")
+    create_event(action="start_set", player=Pl(1))
+
+    response = self.client.get(url)
+
+    # should not raise
+    match = response.data
+    match["owner"] = self._test1
+    match = MatchResultSerializer().create(data=match)
+    self.assertIsNotNone(match)
+
+  def test_should_create_matchresult_with_missing_close(self):
+    url = reverse("events-match-result", args=(self._event1.id,))
+    create_event = lambda action, player, payload = "": Log.objects.create(
+      event=self._event1, owner=self._test1, action=action,
+      player=player, payload=payload)
+    Pl = lambda pk: Player.objects.get(pk=pk)
+
+    create_event(action="change_color", player=Pl(1), payload="red")
+    create_event(action="change_color", player=Pl(2), payload="blue")
+    create_event(action="change_position", player=Pl(1), payload="flex")
+    create_event(action="change_position", player=Pl(2), payload="flex")
+    create_event(action="start_set", player=Pl(1))
+    create_event(action="score_goal", player=Pl(1))
+    create_event(action="score_goal", player=Pl(1))
+    create_event(action="score_goal", player=Pl(2))
+
+    response = self.client.get(url)
+
+    # should not raise
+    match = response.data
+    match["owner"] = self._test1
+    match = MatchResultSerializer().create(data=match)
+    self.assertIsNotNone(match)
+    self.assertNotEqual(response.data["teams"][0]["score"], response.data["teams"][1]["score"])
